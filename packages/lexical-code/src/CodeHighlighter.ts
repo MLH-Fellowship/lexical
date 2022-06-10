@@ -9,6 +9,7 @@
 // eslint-disable-next-line simple-import-sort/imports
 import {
   $createLineBreakNode,
+<<<<<<< HEAD
   LexicalEditor,
   LexicalNode,
   $createTextNode,
@@ -18,7 +19,27 @@ import {
   $isRangeSelection,
   $isTextNode,
   TextNode,
+=======
+  $createTextNode,
+  $getNodeByKey,
+  $getSelection,
+  $isLineBreakNode,
+  $isRangeSelection,
+  $isTextNode,
+  TextNode,
+  LexicalEditor,
+  LexicalNode,
+>>>>>>> bc1163d3 (update to highlighter code split)
 } from 'lexical';
+
+import {
+  CodeNode,
+  $isCodeNode,
+  registerCodeIndent,
+  $createCodeHighlightNode,
+  $isCodeHighlightNode,
+  CodeHighlightNode,
+} from '@lexical/code';
 
 import * as Prism from 'prismjs';
 
@@ -35,6 +56,7 @@ import 'prismjs/components/prism-rust';
 import 'prismjs/components/prism-swift';
 
 import {mergeRegister} from '@lexical/utils';
+<<<<<<< HEAD
 import {
   $isCodeHighlightNode,
   $createCodeHighlightNode,
@@ -45,6 +67,37 @@ import {updateCodeGutter} from './HighlighterHelper';
 
 const DEFAULT_CODE_LANGUAGE = 'javascript';
 
+=======
+
+const DEFAULT_CODE_LANGUAGE = 'javascript';
+
+function updateCodeGutter(node: CodeNode, editor: LexicalEditor): void {
+  const codeElement = editor.getElementByKey(node.getKey());
+  if (codeElement === null) {
+    return;
+  }
+  const children = node.getChildren();
+  const childrenLength = children.length;
+  // @ts-ignore: internal field
+  if (childrenLength === codeElement.__cachedChildrenLength) {
+    // Avoid updating the attribute if the children length hasn't changed.
+    return;
+  }
+  // @ts-ignore:: internal field
+  codeElement.__cachedChildrenLength = childrenLength;
+  let gutter = '1';
+  let count = 1;
+  for (let i = 0; i < childrenLength; i++) {
+    if ($isLineBreakNode(children[i])) {
+      gutter += '\n' + ++count;
+    }
+  }
+  codeElement.setAttribute('data-gutter', gutter);
+}
+
+// Wrapping update function into selection retainer, that tries to keep cursor at the same
+// position as before.
+>>>>>>> bc1163d3 (update to highlighter code split)
 function updateAndRetainSelection(
   node: CodeNode,
   updateFn: () => boolean,

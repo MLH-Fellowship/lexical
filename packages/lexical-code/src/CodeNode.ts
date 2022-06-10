@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+<<<<<<< HEAD
 
 // eslint-disable-next-line simple-import-sort/imports
 import type {
@@ -21,6 +22,8 @@ import type {
 
 import * as Prism from 'prismjs';
 
+=======
+>>>>>>> bc1163d3 (update to highlighter code split)
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-markup';
@@ -33,16 +36,39 @@ import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-rust';
 import 'prismjs/components/prism-swift';
 
+<<<<<<< HEAD
+=======
+import {
+  $createCodeHighlightNode,
+  CodeHighlightNode,
+  getFirstCodeHighlightNodeOfLine,
+} from '@lexical/code';
+>>>>>>> bc1163d3 (update to highlighter code split)
 import {addClassNamesToElement} from '@lexical/utils';
 import {
   $createLineBreakNode,
   $createParagraphNode,
   $getSelection,
   $isRangeSelection,
+<<<<<<< HEAD
   ElementNode,
 } from 'lexical';
 import {CodeHighlightNode, $createCodeHighlightNode} from './CodeHighlightNode';
 import {getFirstCodeHighlightNodeOfLine} from './HighlighterHelper';
+=======
+  DOMConversionMap,
+  DOMConversionOutput,
+  EditorConfig,
+  ElementNode,
+  LexicalNode,
+  NodeKey,
+  ParagraphNode,
+  RangeSelection,
+  SerializedElementNode,
+} from 'lexical';
+import {Spread} from 'libdefs/globals';
+import * as Prism from 'prismjs';
+>>>>>>> bc1163d3 (update to highlighter code split)
 
 type SerializedCodeNode = Spread<
   {
@@ -81,6 +107,13 @@ function convertDivElement(domNode: Node): DOMConversionOutput {
   };
 }
 
+<<<<<<< HEAD
+=======
+function convertTableElement(): DOMConversionOutput {
+  return {node: $createCodeNode()};
+}
+
+>>>>>>> bc1163d3 (update to highlighter code split)
 function convertCodeNoop(): DOMConversionOutput {
   return {node: null};
 }
@@ -100,14 +133,21 @@ function convertTableCellElement(domNode: Node): DOMConversionOutput {
     node: null,
   };
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> bc1163d3 (update to highlighter code split)
 function isCodeElement(div: HTMLDivElement): boolean {
   return div.style.fontFamily.match('monospace') !== null;
 }
 
+<<<<<<< HEAD
 function convertTableElement(): DOMConversionOutput {
   return {node: $createCodeNode()};
 }
 
+=======
+>>>>>>> bc1163d3 (update to highlighter code split)
 function isGitHubCodeCell(
   cell: HTMLTableCellElement,
 ): cell is HTMLTableCellElement {
@@ -236,7 +276,10 @@ export class CodeNode extends ElementNode {
       ...super.exportJSON(),
       language: this.getLanguage(),
       type: 'code',
+<<<<<<< HEAD
       version: 1,
+=======
+>>>>>>> bc1163d3 (update to highlighter code split)
     };
   }
 

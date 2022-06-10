@@ -7,6 +7,7 @@
  */
 
 // eslint-disable-next-line simple-import-sort/imports
+<<<<<<< HEAD
 import type {LexicalCommand, LexicalEditor, LexicalNode} from 'lexical';
 
 import 'prismjs/components/prism-clike';
@@ -20,7 +21,17 @@ import 'prismjs/components/prism-sql';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-rust';
 import 'prismjs/components/prism-swift';
+=======
+>>>>>>> bc1163d3 (update to highlighter code split)
 
+import {
+  $createCodeHighlightNode,
+  $isCodeHighlightNode,
+  CodeHighlightNode,
+  CodeNode,
+  getFirstCodeHighlightNodeOfLine,
+  getLastCodeHighlightNodeOfLine,
+} from '@lexical/code';
 import {mergeRegister} from '@lexical/utils';
 import {
   $getNodeByKey,
@@ -31,11 +42,18 @@ import {
   INDENT_CONTENT_COMMAND,
   KEY_ARROW_DOWN_COMMAND,
   KEY_ARROW_UP_COMMAND,
+<<<<<<< HEAD
+=======
+  LexicalCommand,
+  LexicalEditor,
+  LexicalNode,
+>>>>>>> bc1163d3 (update to highlighter code split)
   MOVE_TO_END,
   MOVE_TO_START,
   OUTDENT_CONTENT_COMMAND,
   TextNode,
 } from 'lexical';
+<<<<<<< HEAD
 import {
   $isCodeHighlightNode,
   CodeHighlightNode,
@@ -78,6 +96,8 @@ function handleMultilineIndent(type: LexicalCommand<void>): boolean {
 
   return true;
 }
+=======
+>>>>>>> bc1163d3 (update to highlighter code split)
 
 function doIndent(node: CodeHighlightNode, type: LexicalCommand<void>) {
   const text = node.getTextContent();
