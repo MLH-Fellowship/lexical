@@ -8,27 +8,27 @@
 
 import type {Binding} from '.';
 import type {CollabElementNode} from './CollabElementNode';
-import type {CodeLineNode, NodeKey} from 'lexical';
+import type {LineBreakNode, NodeKey} from 'lexical';
 import type {Map as YMap} from 'yjs';
 
-import {$getNodeByKey, $isCodeLineNode} from 'lexical';
+import {$getNodeByKey, $isLineBreakNode} from 'lexical';
 
 export class CollabLineBreakNode {
   _map: YMap<unknown>;
   _key: NodeKey;
   _parent: CollabElementNode;
-  _type: 'codeline';
+  _type: 'linebreak';
 
   constructor(map: YMap<unknown>, parent: CollabElementNode) {
     this._key = '';
     this._map = map;
     this._parent = parent;
-    this._type = 'codeline';
+    this._type = 'linebreak';
   }
 
-  getNode(): null | CodeLineNode {
+  getNode(): null | LineBreakNode {
     const node = $getNodeByKey(this._key);
-    return $isCodeLineNode(node) ? node : null;
+    return $isLineBreakNode(node) ? node : null;
   }
 
   getKey(): NodeKey {

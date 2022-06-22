@@ -129,11 +129,6 @@ export {
   $setSelection,
 } from './LexicalUtils';
 export {VERSION} from './LexicalVersion';
-export {
-  $createCodeLineNode,
-  $isCodeLineNode,
-  CodeLineNode,
-} from './nodes/LexicalCodeLineNode';
 export {$isDecoratorNode, DecoratorNode} from './nodes/LexicalDecoratorNode';
 export {$isElementNode, ElementNode} from './nodes/LexicalElementNode';
 export {$isGridCellNode, GridCellNode} from './nodes/LexicalGridCellNode';

@@ -9,7 +9,7 @@
 import type {ElementNode, LexicalNode, TextFormatType, TextNode} from 'lexical';
 
 import {$isLinkNode} from '@lexical/link';
-import {$getRoot, $isCodeLineNode, $isElementNode, $isTextNode} from 'lexical';
+import {$getRoot, $isElementNode, $isLineBreakNode, $isTextNode} from 'lexical';
 
 import {
   getAllMarkdownCriteriaForParagraphs,
@@ -52,7 +52,7 @@ function exportChildren(node: ElementNode): string {
   const children = node.getChildren();
 
   for (const child of children) {
-    if ($isCodeLineNode(child)) {
+    if ($isLineBreakNode(child)) {
       output.push('\n');
     } else if ($isTextNode(child)) {
       output.push(exportTextNode(child, child.getTextContent(), node));

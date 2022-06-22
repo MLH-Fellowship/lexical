@@ -13,7 +13,7 @@ import {ContentEditable} from '@lexical/react/src/LexicalContentEditable';
 import {HistoryPlugin} from '@lexical/react/src/LexicalHistoryPlugin';
 import {RichTextPlugin} from '@lexical/react/src/LexicalRichTextPlugin';
 import {
-  $createCodeLineNode,
+  $createLineBreakNode,
   $createParagraphNode,
   $createTextNode,
   $getRoot,
@@ -1489,7 +1489,7 @@ describe('LexicalSelection tests', () => {
                 const paragraph = root.getFirstChild<ParagraphNode>();
                 const textNode = $createTextNode('foo');
                 // Note: line break can't be selected by the DOM
-                const codeline = $createCodeLineNode();
+                const linebreak = $createLineBreakNode();
 
                 const selection = $getSelection();
 
@@ -1500,7 +1500,7 @@ describe('LexicalSelection tests', () => {
                 const anchor = selection.anchor;
                 const focus = selection.focus;
 
-                paragraph.append(textNode, codeline);
+                paragraph.append(textNode, linebreak);
 
                 fnBefore(paragraph, textNode);
 
@@ -1571,7 +1571,7 @@ describe('LexicalSelection tests', () => {
           //  |- Paragraph
           //    |- Link
           //      |- Text
-          //      |- CodeLine
+          //      |- LineBreak
           //      |- Text
           //    |- Text
           const root = $getRoot();
@@ -1579,7 +1579,7 @@ describe('LexicalSelection tests', () => {
           const paragraph = $createParagraphNode();
           const link = $createLinkNode('bullet');
           const textOne = $createTextNode('Hello');
-          const br = $createCodeLineNode();
+          const br = $createLineBreakNode();
           const textTwo = $createTextNode('world');
           const textThree = $createTextNode(' ');
 
@@ -1624,7 +1624,7 @@ describe('LexicalSelection tests', () => {
         const textNode = $createTextNode('foo');
         const textNodeKey = textNode.getKey();
         // Note: line break can't be selected by the DOM
-        const codeline = $createCodeLineNode();
+        const linebreak = $createLineBreakNode();
 
         const selection = $getSelection();
 
@@ -1634,7 +1634,7 @@ describe('LexicalSelection tests', () => {
 
         const anchor = selection.anchor;
         const focus = selection.focus;
-        paragraph.append(textNode, codeline);
+        paragraph.append(textNode, linebreak);
         anchor.set(textNodeKey, 0, 'text');
         focus.set(textNodeKey, 0, 'text');
 
