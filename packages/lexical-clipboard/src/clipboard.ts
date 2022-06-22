@@ -27,13 +27,13 @@ import {
   $createParagraphNode,
   $getRoot,
   $getSelection,
+  $isCodeLineNode,
   $isDecoratorNode,
   $isElementNode,
   $isGridCellNode,
   $isGridNode,
   $isGridRowNode,
   $isGridSelection,
-  $isLineBreakNode,
   $isRangeSelection,
   $isTextNode,
   $parseSerializedNode,
@@ -183,7 +183,7 @@ function $basicInsertStrategy(
       ($isDecoratorNode(node) && !node.isTopLevel()) ||
       ($isElementNode(node) && node.isInline()) ||
       $isTextNode(node) ||
-      $isLineBreakNode(node)
+      $isCodeLineNode(node)
     ) {
       if (currentBlock === null) {
         currentBlock = $createParagraphNode();

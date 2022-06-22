@@ -21,8 +21,8 @@ import type {
 import {addClassNamesToElement} from '@lexical/utils';
 import {
   $createParagraphNode,
+  $isCodeLineNode,
   $isElementNode,
-  $isLineBreakNode,
   GridCellNode,
 } from 'lexical';
 
@@ -224,7 +224,7 @@ export function convertTableCellNodeElement(
       if ($isTableCellNode(parentLexicalNode) && !$isElementNode(lexicalNode)) {
         const paragraphNode = $createParagraphNode();
         if (
-          $isLineBreakNode(lexicalNode) &&
+          $isCodeLineNode(lexicalNode) &&
           lexicalNode.getTextContent() === '\n'
         ) {
           return null;

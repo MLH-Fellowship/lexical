@@ -18,7 +18,7 @@ import {$isCodeNode} from '@lexical/code';
 import {
   $createRangeSelection,
   $getSelection,
-  $isLineBreakNode,
+  $isCodeLineNode,
   $isRangeSelection,
   $isRootNode,
   $isTextNode,
@@ -180,7 +180,7 @@ function runTextFormatTransformers(
       openTagStartIndex < 0 &&
       (sibling = sibling.getPreviousSibling<TextNode>())
     ) {
-      if ($isLineBreakNode(sibling)) {
+      if ($isCodeLineNode(sibling)) {
         break;
       }
 

@@ -7,20 +7,20 @@
  */
 
 // eslint-disable-next-line simple-import-sort/imports
-import type {
+import {
   EditorConfig,
   EditorThemeClasses,
   LexicalNode,
   NodeKey,
   SerializedTextNode,
   Spread,
+  TextNode,
 } from 'lexical';
 
 import {
   addClassNamesToElement,
   removeClassNamesFromElement,
 } from '@lexical/utils';
-import {TextNode} from 'lexical';
 
 type SerializedCodeHighlightNode = Spread<
   {
@@ -30,6 +30,7 @@ type SerializedCodeHighlightNode = Spread<
   },
   SerializedTextNode
 >;
+
 export class CodeHighlightNode extends TextNode {
   __highlightType: string | null | undefined;
 

@@ -11,7 +11,8 @@ underlying data model for what is stored in the editor at any given time. Lexica
 is extended internally to create Lexical's five base nodes:
 
 - `RootNode`
-- `LineBreakNode`
+<!-- - `LineBreakNode` -->
+- `CodeLineNode`
 - `ElementNode`
 - `TextNode`
 - `DecoratorNode`
@@ -30,9 +31,14 @@ There is only ever a single `RootNode` in an `EditorState` and it is always at t
 - To get the text content of the entire editor, you should use `rootNode.getTextContent()`.
 - To avoid selection issues, Lexical forbids insertion of text nodes directly into a `RootNode`.
 
-### [`LineBreakNode`](https://github.com/facebook/lexical/blob/main/packages/lexical/src/nodes/LexicalLineBreakNode.ts)
+<!-- ### [`LineBreakNode`](https://github.com/facebook/lexical/blob/main/packages/lexical/src/nodes/LexicalLineBreakNode.ts)
 
 You should never have `'\n'` in your text nodes, instead you should use the `LineBreakNode` which represents
+`'\n'`, and more importantly, can work consistently between browsers and operating systems. -->
+
+### [`CodeLineNode`](https://github.com/facebook/lexical/blob/main/packages/lexical/src/nodes/LexicalCodeLineNode.ts)
+
+You should never have `'\n'` in your text nodes, instead you should use the `CodeLineNode` which represents
 `'\n'`, and more importantly, can work consistently between browsers and operating systems.
 
 ### [`ElementNode`](https://github.com/facebook/lexical/blob/main/packages/lexical/src/nodes/LexicalElementNode.ts)

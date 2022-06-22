@@ -18,8 +18,8 @@ import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister} from '@lexical/utils';
 import {
   $createTextNode,
+  $isCodeLineNode,
   $isElementNode,
-  $isLineBreakNode,
   $isTextNode,
   TextNode,
 } from 'lexical';
@@ -61,7 +61,7 @@ function isPreviousNodeValid(node: LexicalNode): boolean {
 
   return (
     previousNode === null ||
-    $isLineBreakNode(previousNode) ||
+    $isCodeLineNode(previousNode) ||
     ($isTextNode(previousNode) && previousNode.getTextContent().endsWith(' '))
   );
 }
@@ -75,7 +75,7 @@ function isNextNodeValid(node: LexicalNode): boolean {
 
   return (
     nextNode === null ||
-    $isLineBreakNode(nextNode) ||
+    $isCodeLineNode(nextNode) ||
     ($isTextNode(nextNode) && nextNode.getTextContent().startsWith(' '))
   );
 }
@@ -100,7 +100,7 @@ function handleLinkCreation(
     // Previous node is valid if any of:
     // 1. Space before same node
     // 2. Space in previous simple text node
-    // 3. Previous node is LineBreakNode
+    // 3. Previous node is CodeLineNode
     let contentBeforeMatchIsValid;
 
     if (offset > 0) {
@@ -112,7 +112,7 @@ function handleLinkCreation(
     // Next node is valid if any of:
     // 1. Space after same node
     // 2. Space in next simple text node
-    // 3. Next node is LineBreakNode
+    // 3. Next node is CVodeLineNode
     let contentAfterMatchIsValid;
 
     if (offset + matchLength < nodeTextLength) {

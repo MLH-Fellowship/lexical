@@ -14,7 +14,7 @@ import type {
 } from '@lexical/markdown';
 import type {ElementNode, LexicalNode, TextFormatType, TextNode} from 'lexical';
 
-import {$getRoot, $isElementNode, $isLineBreakNode, $isTextNode} from 'lexical';
+import {$getRoot, $isCodeLineNode, $isElementNode, $isTextNode} from 'lexical';
 
 import {transformersByType} from './utils';
 
@@ -80,7 +80,7 @@ function exportChildren(
   const children = node.getChildren();
 
   mainLoop: for (const child of children) {
-    if ($isLineBreakNode(child)) {
+    if ($isCodeLineNode(child)) {
       output.push('\n');
     } else if ($isTextNode(child)) {
       output.push(

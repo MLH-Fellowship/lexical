@@ -37,7 +37,7 @@ import {
   $joinTextNodesInElementNode,
 } from '@lexical/text';
 import {
-  $createLineBreakNode,
+  $createCodeLineNode,
   $createParagraphNode,
   $createRangeSelection,
   $getSelection,
@@ -818,11 +818,11 @@ function getNewNodeForCriteria<T>(
             // Build up the code block with a line break and the children.
             if (scanningContext.currentElementNode != null) {
               const codeBlockNode = scanningContext.currentElementNode;
-              const lineBreakNode = $createLineBreakNode();
-              codeBlockNode.append(lineBreakNode);
+              const codeLineNode = $createCodeLineNode();
+              codeBlockNode.append(codeLineNode);
 
               if (children.length) {
-                codeBlockNode.append(lineBreakNode);
+                codeBlockNode.append(codeLineNode);
               }
 
               codeBlockNode.append(...children);
