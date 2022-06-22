@@ -14,7 +14,7 @@ export default function CodeHighlightPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
-    return registerCodeHighlighting(editor);
+    return registerCodeHighlighting(editor, 10000);
   }, [editor]);
 
   return null;

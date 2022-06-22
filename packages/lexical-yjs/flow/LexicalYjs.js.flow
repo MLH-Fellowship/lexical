@@ -14,7 +14,7 @@ import type {
   ElementNode,
   LexicalCommand,
   LexicalEditor,
-  LineBreakNode,
+  CodeLineNode,
   NodeMap,
   NodeKey,
   TextNode,
@@ -160,7 +160,7 @@ declare export class CollabLineBreakNode {
 
   constructor(map: YMap, parent: CollabElementNode): void;
 
-  getNode(): null | LineBreakNode;
+  getNode(): null | CodeLineNode;
 
   getKey(): NodeKey;
 

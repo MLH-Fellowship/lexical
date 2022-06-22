@@ -639,6 +639,27 @@ declare export function $isLineBreakNode(
 ): boolean %checks(node instanceof LineBreakNode);
 
 /**
+ * LexicalCodeLineNode
+ */
+
+declare export class CodeLineNode extends LexicalNode {
+  static getType(): string;
+  static clone(node: CodeLineNode): CodeLineNode;
+  constructor(key?: NodeKey): void;
+  getTextContent(): '\n';
+  createDOM(): HTMLElement;
+  updateDOM(): false;
+  static importJSON(
+    serializedCodeLineNode: SerializedCodeLineNode,
+  ): CodeLineNode;
+  exportJSON(): SerializedLexicalNode;
+}
+declare export function $createCodeLineNode(): CodeLineNode;
+declare export function $isCodeLineNode(
+  node: ?LexicalNode,
+): boolean %checks(node instanceof CodeLineNode);
+
+/**
  * LexicalRootNode
  */
 
@@ -798,7 +819,7 @@ declare export function $getRoot(): RootNode;
 declare export function $isLeafNode(
   node: ?LexicalNode,
 ): boolean %checks(node instanceof TextNode ||
-  node instanceof LineBreakNode ||
+  node instanceof CodeLineNode ||
   node instanceof DecoratorNode);
 declare export function $setCompositionKey(
   compositionKey: null | NodeKey,
@@ -867,6 +888,12 @@ export type SerializedParagraphNode = {
 export type SerializedLineBreakNode = {
   ...SerializedLexicalNode,
   type: 'linebreak',
+  ...
+};
+
+export type SerializedCodeLineNode = {
+  ...SerializedLexicalNode,
+  type: 'codeline',
   ...
 };
 

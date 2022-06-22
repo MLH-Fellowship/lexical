@@ -17,16 +17,16 @@ import getDOMSelection from 'shared/getDOMSelection';
 import invariant from 'shared/invariant';
 
 import {
-  $createLineBreakNode,
+  $createCodeLineNode,
   $createParagraphNode,
   $createTextNode,
+  $isCodeLineNode,
   $isDecoratorNode,
   $isElementNode,
   $isGridCellNode,
   $isGridNode,
   $isGridRowNode,
   $isLeafNode,
-  $isLineBreakNode,
   $isRootNode,
   $isTextNode,
   DecoratorNode,
@@ -640,7 +640,7 @@ export class RangeSelection implements BaseSelection {
           }
           textContent += text;
         } else if (
-          ($isDecoratorNode(node) || $isLineBreakNode(node)) &&
+          ($isDecoratorNode(node) || $isCodeLineNode(node)) &&
           (node !== lastNode || !this.isCollapsed())
         ) {
           textContent += node.getTextContent();
@@ -715,7 +715,7 @@ export class RangeSelection implements BaseSelection {
           nodes.push($createTextNode(part));
         }
         if (i !== length - 1) {
-          nodes.push($createLineBreakNode());
+          nodes.push($createCodeLineNode());
         }
       }
       this.insertNodes(nodes);
@@ -1561,7 +1561,7 @@ export class RangeSelection implements BaseSelection {
   }
 
   insertLineBreak(selectStart?: boolean): void {
-    const lineBreakNode = $createLineBreakNode();
+    const codeLineNode = $createCodeLineNode();
     const anchor = this.anchor;
     if (anchor.type === 'element') {
       const element = anchor.getNode();
@@ -1570,10 +1570,10 @@ export class RangeSelection implements BaseSelection {
       }
     }
     if (selectStart) {
-      this.insertNodes([lineBreakNode], true);
+      this.insertNodes([codeLineNode], true);
     } else {
-      if (this.insertNodes([lineBreakNode])) {
-        lineBreakNode.selectNext(0, 0);
+      if (this.insertNodes([codeLineNode])) {
+        codeLineNode.selectNext(0, 0);
       }
     }
   }

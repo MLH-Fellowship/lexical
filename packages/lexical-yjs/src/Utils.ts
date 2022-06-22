@@ -17,9 +17,9 @@ import type {
 
 import {
   $getNodeByKey,
+  $isCodeLineNode,
   $isDecoratorNode,
   $isElementNode,
-  $isLineBreakNode,
   $isTextNode,
   createEditor,
   NodeKey,
@@ -111,7 +111,7 @@ export function $createCollabNodeFromLexicalNode(
       nodeType,
     );
     collabNode.syncPropertiesAndTextFromLexical(binding, lexicalNode, null);
-  } else if ($isLineBreakNode(lexicalNode)) {
+  } else if ($isCodeLineNode(lexicalNode)) {
     const map = new YMap();
     map.set('__type', 'linebreak');
     collabNode = $createCollabLineBreakNode(map, parent);
@@ -183,7 +183,7 @@ export function getOrInitCollabNodeFromSharedType(
         throw new Error('Should never happen');
       }
 
-      if (type === 'linebreak') {
+      if (type === 'codeline') {
         return $createCollabLineBreakNode(sharedType, targetParent);
       }
 

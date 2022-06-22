@@ -17,8 +17,8 @@ import {
   TableRowNode,
 } from '@lexical/table';
 import {
+  $createCodeLineNode,
   $createGridSelection,
-  $createLineBreakNode,
   $createNodeSelection,
   $createParagraphNode,
   $createTextNode,
@@ -1744,7 +1744,7 @@ describe('LexicalEditor tests', () => {
     await editor.update(() => {
       const root = $getRoot();
       const child = root.getLastDescendant();
-      child.insertAfter($createLineBreakNode());
+      child.insertAfter($createCodeLineNode());
     });
 
     expect(fn).toHaveBeenCalledTimes(2);

@@ -26,8 +26,8 @@ import {
   updateEditor,
 } from './LexicalUpdates';
 import {createUID, dispatchCommand, markAllNodesAsDirty} from './LexicalUtils';
+import {CodeLineNode} from './nodes/LexicalCodeLineNode';
 import {DecoratorNode} from './nodes/LexicalDecoratorNode';
-import {LineBreakNode} from './nodes/LexicalLineBreakNode';
 import {ParagraphNode} from './nodes/LexicalParagraphNode';
 import {RootNode} from './nodes/LexicalRootNode';
 
@@ -298,7 +298,7 @@ export function createEditor(editorConfig?: {
   const nodes = [
     RootNode,
     TextNode,
-    LineBreakNode,
+    CodeLineNode,
     ParagraphNode,
     ...(config.nodes || []),
   ];
