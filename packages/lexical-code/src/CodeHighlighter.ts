@@ -8,13 +8,13 @@
 
 // eslint-disable-next-line simple-import-sort/imports
 import {
-  $createLineBreakNode,
+  $createCodeLineNode,
+  $isCodeLineNode,
   LexicalEditor,
   LexicalNode,
   $createTextNode,
   $getNodeByKey,
   $getSelection,
-  $isLineBreakNode,
   $isRangeSelection,
   $isTextNode,
   TextNode,
@@ -58,7 +58,7 @@ function updateAndRetainSelection(
   const anchorOffset = anchor.offset;
   const isNewLineAnchor =
     anchor.type === 'element' &&
-    $isLineBreakNode(node.getChildAtIndex(anchor.offset - 1));
+    $isCodeLineNode(node.getChildAtIndex(anchor.offset - 1));
   let textOffset = 0;
 
   // Calculating previous text offset (all text node prior to anchor + anchor own text offset)
@@ -68,7 +68,7 @@ function updateAndRetainSelection(
       anchorOffset +
       anchorNode.getPreviousSiblings().reduce((offset, _node) => {
         return (
-          offset + ($isLineBreakNode(_node) ? 0 : _node.getTextContentSize())
+          offset + ($isCodeLineNode(_node) ? 0 : _node.getTextContentSize())
         );
       }, 0);
   }
@@ -114,7 +114,7 @@ function getHighlightNodes(
           nodes.push($createCodeHighlightNode(text));
         }
         if (i < partials.length - 1) {
-          nodes.push($createLineBreakNode());
+          nodes.push($createCodeLineNode());
         }
       }
     } else {
@@ -175,7 +175,7 @@ function codeNodeTransform(
             for (let i = 0; i < codeContent.length; i++) {
               node.append($createTextNode(codeContent[i]));
               if (i !== codeContent.length - 1) {
-                node.append($createLineBreakNode());
+                node.append($createCodeLineNode());
               }
             }
           }
@@ -230,7 +230,7 @@ function isEqual(nodeA: LexicalNode, nodeB: LexicalNode): boolean {
     );
   }
 
-  if ($isLineBreakNode(nodeA) && $isLineBreakNode(nodeB)) {
+  if ($isCodeLineNode(nodeA) && $isCodeLineNode(nodeB)) {
     return true;
   }
 

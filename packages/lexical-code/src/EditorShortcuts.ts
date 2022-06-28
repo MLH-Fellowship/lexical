@@ -25,7 +25,7 @@ import {mergeRegister} from '@lexical/utils';
 import {
   $getNodeByKey,
   $getSelection,
-  $isLineBreakNode,
+  $isCodeLineNode,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
   INDENT_CONTENT_COMMAND,
@@ -59,7 +59,7 @@ function handleMultilineIndent(type: LexicalCommand<void>): boolean {
   const nodes = selection.getNodes();
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
-    if (!$isCodeHighlightNode(node) && !$isLineBreakNode(node)) {
+    if (!$isCodeHighlightNode(node) && !$isCodeLineNode(node)) {
       return false;
     }
   }
@@ -71,7 +71,7 @@ function handleMultilineIndent(type: LexicalCommand<void>): boolean {
 
   for (let i = 1; i < nodes.length; i++) {
     const node = nodes[i];
-    if ($isLineBreakNode(nodes[i - 1]) && $isCodeHighlightNode(node)) {
+    if ($isCodeLineNode(nodes[i - 1]) && $isCodeHighlightNode(node)) {
       doIndent(node, type);
     }
   }
@@ -170,7 +170,7 @@ function handleShiftLines(
   const range = start.getNodesBetween(end);
   for (let i = 0; i < range.length; i++) {
     const node = range[i];
-    if (!$isCodeHighlightNode(node) && !$isLineBreakNode(node)) {
+    if (!$isCodeHighlightNode(node) && !$isCodeLineNode(node)) {
       return false;
     }
   }
@@ -184,7 +184,7 @@ function handleShiftLines(
   const linebreak = arrowIsUp
     ? start.getPreviousSibling()
     : end.getNextSibling();
-  if (!$isLineBreakNode(linebreak)) {
+  if (!$isCodeLineNode(linebreak)) {
     return true;
   }
   const sibling = arrowIsUp
@@ -268,7 +268,7 @@ function getStartOfCodeInLine(anchor: LexicalNode): {
         currentNodeOffset = offset;
       }
     }
-    if ($isLineBreakNode(node)) {
+    if ($isCodeLineNode(node)) {
       break;
     }
   }
@@ -286,7 +286,7 @@ function getStartOfCodeInLine(anchor: LexicalNode): {
           break;
         }
       }
-      if ($isLineBreakNode(node)) {
+      if ($isCodeLineNode(node)) {
         break;
       }
     }
@@ -316,7 +316,7 @@ function getEndOfCodeInLine(anchor: LexicalNode): {
         currentNodeOffset = offset + 1;
       }
     }
-    if ($isLineBreakNode(node)) {
+    if ($isCodeLineNode(node)) {
       break;
     }
   }
@@ -334,7 +334,7 @@ function getEndOfCodeInLine(anchor: LexicalNode): {
           break;
         }
       }
-      if ($isLineBreakNode(node)) {
+      if ($isCodeLineNode(node)) {
         break;
       }
     }
