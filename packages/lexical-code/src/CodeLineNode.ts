@@ -5,38 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type {
-  DOMConversionMap,
-  DOMConversionOutput,
-  NodeKey,
-  SerializedLexicalNode,
-} from '../LexicalNode';
+
 import type {
   EditorConfig,
+  LexicalNode,
+  NodeKey,
   ParagraphNode,
   RangeSelection,
+  SerializedElementNode,
   Spread,
 } from 'lexical';
 
 import {addClassNamesToElement} from '@lexical/utils';
-import {$createParagraphNode} from 'lexical';
+import {$createParagraphNode, ElementNode} from 'lexical';
 
-import {$createCodeHighlightNode} from '../../../lexical-code/src/CodeHighlightNode';
-import {getFirstCodeHighlightNodeOfLine} from '../../../lexical-code/src/HighlighterHelper';
-import {LexicalNode} from '../LexicalNode';
+import {$createCodeHighlightNode} from './CodeHighlightNode';
+import {getFirstCodeHighlightNodeOfLine} from './HighlighterHelper';
 
-export type SerializedCodeLineNode = Spread<
+type SerializedCodeLineNode = Spread<
   {
-    type: 'codeline';
+    type: 'code-line';
+    version: 1;
   },
-  SerializedLexicalNode
+  SerializedElementNode
 >;
 
-export class CodeLineNode extends LexicalNode {
-  static getType(): string {
-    return 'codeline';
-  }
-
+export class CodeLineNode extends ElementNode {
   static clone(node: CodeLineNode): CodeLineNode {
     return new CodeLineNode(node.__key);
   }
@@ -45,8 +39,8 @@ export class CodeLineNode extends LexicalNode {
     super(key);
   }
 
-  getTextContent(): '\n' {
-    return '\n';
+  static getType(): string {
+    return 'code-line';
   }
 
   createDOM(config: EditorConfig): HTMLElement {
@@ -57,25 +51,6 @@ export class CodeLineNode extends LexicalNode {
 
   updateDOM(prevNode: CodeLineNode, dom: HTMLElement): boolean {
     return false;
-  }
-  static importDOM(): DOMConversionMap | null {
-    return {
-      div: (node: Node) => {
-        const parentElement = node.parentElement;
-        // If the <div> is the only child, then skip including it
-        if (
-          parentElement != null &&
-          parentElement.firstChild === node &&
-          parentElement.lastChild === node
-        ) {
-          return null;
-        }
-        return {
-          conversion: convertCodeLineElement,
-          priority: 0,
-        };
-      },
-    };
   }
 
   insertNewAfter(
@@ -142,26 +117,17 @@ export class CodeLineNode extends LexicalNode {
     return true;
   }
 
-  static importJSON(
-    serializedCodeLineNode: SerializedCodeLineNode,
-  ): CodeLineNode {
-    return $createCodeLineNode();
+  exportJSON(): SerializedCodeLineNode {
+    return {
+      ...super.exportJSON(),
+      type: 'code-line',
+      version: 1,
+    };
   }
-
-  // exportJSON(): SerializedLexicalNode {
-  //   return {
-  //     type: 'codeline',
-  //     version: 1,
-  //   };
-  // }
 }
 
-function convertCodeLineElement(node: Node): DOMConversionOutput {
-  return {node: $createCodeLineNode()};
-}
-
-export function $createCodeLineNode(): CodeLineNode {
-  return new CodeLineNode();
+export function $createCodeLineNode(language?: string): CodeLineNode {
+  return new CodeLineNode(language);
 }
 
 export function $isCodeLineNode(

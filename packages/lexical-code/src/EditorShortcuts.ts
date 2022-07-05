@@ -25,7 +25,6 @@ import {mergeRegister} from '@lexical/utils';
 import {
   $getNodeByKey,
   $getSelection,
-  $isCodeLineNode,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
   INDENT_CONTENT_COMMAND,
@@ -47,6 +46,7 @@ import {
   getLastCodeHighlightNodeOfLine,
   updateCodeGutter,
 } from './HighlighterHelper';
+import {$isCodeLineNode} from './CodeLineNode';
 
 function handleMultilineIndent(type: LexicalCommand<void>): boolean {
   const selection = $getSelection();

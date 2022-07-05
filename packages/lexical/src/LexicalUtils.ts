@@ -35,9 +35,9 @@ import {
   $createTextNode,
   $getPreviousSelection,
   $getSelection,
-  $isCodeLineNode,
   $isDecoratorNode,
   $isElementNode,
+  $isLineBreakNode,
   $isRangeSelection,
   $isRootNode,
   $isTextNode,
@@ -196,7 +196,7 @@ export function toggleTextFormatType(
 }
 
 export function $isLeafNode(node: LexicalNode | null | undefined): boolean {
-  return $isTextNode(node) || $isCodeLineNode(node) || $isDecoratorNode(node);
+  return $isTextNode(node) || $isLineBreakNode(node) || $isDecoratorNode(node);
 }
 
 export function $setNodeKey(

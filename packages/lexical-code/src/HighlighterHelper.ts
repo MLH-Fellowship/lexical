@@ -7,8 +7,9 @@
  */
 
 // eslint-disable-next-line simple-import-sort/imports
-import {$isCodeLineNode, LexicalNode, LexicalEditor} from 'lexical';
+import {LexicalNode, LexicalEditor} from 'lexical';
 import {CodeHighlightNode, $isCodeHighlightNode, CodeNode} from '@lexical/code';
+import {$isCodeLineNode} from './CodeLineNode';
 
 export function getFirstCodeHighlightNodeOfLine(
   anchor: LexicalNode,
