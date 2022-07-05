@@ -169,7 +169,7 @@ declare export class LexicalEditor {
     updateFn?: () => void,
   ): EditorState;
   update(updateFn: () => void, options?: EditorUpdateOptions): boolean;
-  focus(callbackFn?: () => void): void;
+  focus(callbackFn?: () => void, options?: EditorFocusOptions): void;
   blur(): void;
   isReadOnly(): boolean;
   setReadOnly(readOnly: boolean): void;
@@ -179,6 +179,9 @@ type EditorUpdateOptions = {
   onUpdate?: () => void,
   tag?: string,
   skipTransforms?: true,
+};
+type EditorFocusOptions = {
+  defaultSelection?: 'rootStart' | 'rootEnd',
 };
 type EditorSetOptions = {
   tag?: string,
@@ -196,6 +199,7 @@ type TextNodeThemeClasses = {
   superscript?: EditorThemeClassName,
 };
 export type EditorThemeClasses = {
+  characterLimit?: EditorThemeClassName,
   ltr?: EditorThemeClassName,
   rtl?: EditorThemeClassName,
   text?: TextNodeThemeClasses,
@@ -302,7 +306,7 @@ export type DOMChildConversion = (
   parentLexicalNode: ?LexicalNode | null,
 ) => LexicalNode | null | void;
 export type DOMConversionMap = {
-  [NodeName]: (node: Node) => DOMConversion | null,
+  [NodeName]: <T: HTMLElement>(node: T) => DOMConversion | null,
 };
 type NodeName = string;
 export type DOMConversionOutput = {

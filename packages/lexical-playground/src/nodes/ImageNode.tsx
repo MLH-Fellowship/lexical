@@ -7,10 +7,16 @@
  */
 
 import type {
+  DOMConversionMap,
+  DOMConversionOutput,
+  DOMExportOutput,
   EditorConfig,
+  GridSelection,
   LexicalEditor,
   LexicalNode,
   NodeKey,
+  NodeSelection,
+  RangeSelection,
   SerializedEditor,
   SerializedLexicalNode,
   Spread,
@@ -84,6 +90,15 @@ function useSuspenseImage(src: string) {
   }
 }
 
+function convertImageElement(domNode: Node): null | DOMConversionOutput {
+  if (domNode instanceof HTMLImageElement) {
+    const {alt: altText, src} = domNode;
+    const node = $createImageNode({altText, src});
+    return {node};
+  }
+  return null;
+}
+
 function LazyImage({
   altText,
   className,
@@ -104,7 +119,7 @@ function LazyImage({
   useSuspenseImage(src);
   return (
     <img
-      className={className}
+      className={className || undefined}
       src={src}
       alt={altText}
       ref={imageRef}
@@ -146,7 +161,9 @@ function ImageComponent({
   const {yjsDocMap} = useCollaborationContext();
   const [editor] = useLexicalComposerContext();
   const isCollab = yjsDocMap.get('main') !== undefined;
-  const [selection, setSelection] = useState(null);
+  const [selection, setSelection] = useState<
+    RangeSelection | NodeSelection | GridSelection | null
+  >(null);
 
   const onDelete = useCallback(
     (payload: KeyboardEvent) => {
@@ -219,7 +236,10 @@ function ImageComponent({
     });
   };
 
-  const onResizeEnd = (nextWidth, nextHeight) => {
+  const onResizeEnd = (
+    nextWidth: 'inherit' | number,
+    nextHeight: 'inherit' | number,
+  ) => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
       setIsResizing(false);
@@ -369,6 +389,22 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       nestedEditor.setEditorState(editorState);
     }
     return node;
+  }
+
+  exportDOM(): DOMExportOutput {
+    const element = document.createElement('img');
+    element.setAttribute('src', this.__src);
+    element.setAttribute('alt', this.__altText);
+    return {element};
+  }
+
+  static importDOM(): DOMConversionMap | null {
+    return {
+      img: (node: Node) => ({
+        conversion: convertImageElement,
+        priority: 0,
+      }),
+    };
   }
 
   constructor(

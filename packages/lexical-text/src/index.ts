@@ -6,8 +6,13 @@
  *
  */
 
-import type {ElementNode, LexicalEditor, LexicalNode, RootNode} from 'lexical';
-import type {Klass} from 'shared/types';
+import type {
+  ElementNode,
+  Klass,
+  LexicalEditor,
+  LexicalNode,
+  RootNode,
+} from 'lexical';
 
 import {
   $createTextNode,
@@ -203,8 +208,12 @@ export function $rootTextContent(): string {
   return root.getTextContent();
 }
 
-export function $canShowPlaceholder(isComposing: boolean): boolean {
-  if (!$isRootTextContentEmpty(isComposing, false)) {
+export function $canShowPlaceholder(
+  isComposing: boolean,
+  // TODO 0.4 make mandatory
+  isReadOnly = false,
+): boolean {
+  if (isReadOnly || !$isRootTextContentEmpty(isComposing, false)) {
     return false;
   }
 
@@ -246,19 +255,21 @@ export function $canShowPlaceholder(isComposing: boolean): boolean {
 
 export function $canShowPlaceholderCurry(
   isEditorComposing: boolean,
+  // TODO 0.4 make mandatory
+  isReadOnly = false,
 ): () => boolean {
-  return () => $canShowPlaceholder(isEditorComposing);
+  return () => $canShowPlaceholder(isEditorComposing, isReadOnly);
 }
 
 export type EntityMatch = {end: number; start: number};
 
-export function registerLexicalTextEntity<N extends TextNode>(
+export function registerLexicalTextEntity<T extends TextNode>(
   editor: LexicalEditor,
   getMatch: (text: string) => null | EntityMatch,
-  targetNode: Klass<N>,
-  createNode: (textNode: TextNode) => N,
+  targetNode: Klass<T>,
+  createNode: (textNode: TextNode) => T,
 ): Array<() => void> {
-  const isTargetNode = (node: LexicalNode | null | undefined): node is N => {
+  const isTargetNode = (node: LexicalNode | null | undefined): node is T => {
     return node instanceof targetNode;
   };
 
@@ -382,7 +393,7 @@ export function registerLexicalTextEntity<N extends TextNode>(
     }
   };
 
-  const reverseNodeTransform = (node: N) => {
+  const reverseNodeTransform = (node: T) => {
     const text = node.getTextContent();
     const match = getMatch(text);
 
@@ -422,7 +433,7 @@ export function registerLexicalTextEntity<N extends TextNode>(
     TextNode,
     textNodeTransform,
   );
-  const removeReverseNodeTransform = editor.registerNodeTransform<N>(
+  const removeReverseNodeTransform = editor.registerNodeTransform<T>(
     targetNode,
     reverseNodeTransform,
   );

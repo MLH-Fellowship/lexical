@@ -28,8 +28,8 @@ import {useSharedHistoryContext} from './context/SharedHistoryContext';
 import ActionsPlugin from './plugins/ActionsPlugin';
 import AutocompletePlugin from './plugins/AutocompletePlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
-import CharacterStylesPopupPlugin from './plugins/CharacterStylesPopupPlugin';
 import ClickableLinkPlugin from './plugins/ClickableLinkPlugin';
+import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPlugin from './plugins/CodeHighlightPlugin';
 import CommentPlugin from './plugins/CommentPlugin';
 import EmojisPlugin from './plugins/EmojisPlugin';
@@ -47,6 +47,7 @@ import SpeechToTextPlugin from './plugins/SpeechToTextPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
+import TextFormatFloatingToolbarPlugin from './plugins/TextFormatFloatingToolbarPlugin';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
 import TreeViewPlugin from './plugins/TreeViewPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
@@ -118,6 +119,7 @@ export default function Editor(): JSX.Element {
               initialEditorState={isCollab ? null : undefined}
             />
             <MarkdownShortcutPlugin />
+            <CodeActionMenuPlugin />
             <CodeHighlightPlugin />
             <ListPlugin />
             <CheckListPlugin />
@@ -132,7 +134,7 @@ export default function Editor(): JSX.Element {
             <YouTubePlugin />
             <ClickableLinkPlugin />
             <HorizontalRulePlugin />
-            <CharacterStylesPopupPlugin />
+            <TextFormatFloatingToolbarPlugin />
             <EquationsPlugin />
             <ExcalidrawPlugin />
             <TabFocusPlugin />

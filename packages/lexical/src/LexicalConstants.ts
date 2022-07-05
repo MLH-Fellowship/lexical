@@ -7,7 +7,11 @@
  */
 
 import type {ElementFormatType} from './nodes/LexicalElementNode';
-import type {TextFormatType, TextModeType} from './nodes/LexicalTextNode';
+import type {
+  TextDetailType,
+  TextFormatType,
+  TextModeType,
+} from './nodes/LexicalTextNode';
 
 import {IS_FIREFOX, IS_IOS, IS_SAFARI} from 'shared/environment';
 
@@ -70,7 +74,7 @@ export const RTL_REGEX = new RegExp('^[^' + LTR + ']*[' + RTL + ']');
 // eslint-disable-next-line no-misleading-character-class
 export const LTR_REGEX = new RegExp('^[^' + RTL + ']*[' + LTR + ']');
 
-export const TEXT_TYPE_TO_FORMAT: Record<TextFormatType, number> = {
+export const TEXT_TYPE_TO_FORMAT: Record<TextFormatType | string, number> = {
   bold: IS_BOLD,
   code: IS_CODE,
   italic: IS_ITALIC,
@@ -80,9 +84,14 @@ export const TEXT_TYPE_TO_FORMAT: Record<TextFormatType, number> = {
   underline: IS_UNDERLINE,
 };
 
-export const ELEMENT_TYPE_TO_FORMAT: Omit<
-  Record<ElementFormatType, number>,
-  ''
+export const DETAIL_TYPE_TO_DETAIL: Record<TextDetailType | string, number> = {
+  directionless: IS_DIRECTIONLESS,
+  unmergeable: IS_UNMERGEABLE,
+};
+
+export const ELEMENT_TYPE_TO_FORMAT: Record<
+  Exclude<ElementFormatType, ''>,
+  number
 > = {
   center: IS_ALIGN_CENTER,
   justify: IS_ALIGN_JUSTIFY,

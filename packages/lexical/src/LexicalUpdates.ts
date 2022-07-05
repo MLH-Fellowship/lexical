@@ -273,7 +273,6 @@ type InternalSerializedNode = {
 export function $parseSerializedNode(
   serializedNode: SerializedLexicalNode,
 ): LexicalNode {
-  // $FlowFixMe: intentional cast to our internal type
   const internalSerializedNode: InternalSerializedNode = serializedNode;
   return $parseSerializedNodeImpl(
     internalSerializedNode,
@@ -296,7 +295,6 @@ function $parseSerializedNodeImpl<
 
   const nodeClass = registeredNode.klass;
 
-  // @ts-expect-error TODO Replace Class utility type with InstanceType
   if (serializedNode.type !== nodeClass.getType()) {
     invariant(
       false,
@@ -305,7 +303,6 @@ function $parseSerializedNodeImpl<
     );
   }
 
-  // @ts-expect-error TODO Replace Class utility type with InstanceType
   const node = nodeClass.importJSON(serializedNode);
   const children = serializedNode.children;
 
@@ -464,7 +461,9 @@ export function commitPendingUpdates(editor: LexicalEditor): void {
       );
     } catch (error) {
       // Report errors
-      editor._onError(error);
+      if (error instanceof Error) {
+        editor._onError(error);
+      }
 
       // Reset editor and restore incoming editor state to the DOM
       if (!isAttemptingToRecoverFromReconcilerError) {
@@ -481,7 +480,7 @@ export function commitPendingUpdates(editor: LexicalEditor): void {
 
       return;
     } finally {
-      observer.observe(rootElement, {
+      observer.observe(rootElement as Node, {
         characterData: true,
         childList: true,
         subtree: true,
@@ -544,7 +543,7 @@ export function commitPendingUpdates(editor: LexicalEditor): void {
         editor,
         domSelection,
         tags,
-        rootElement,
+        rootElement as HTMLElement,
       );
     } finally {
       activeEditor = previousActiveEditor;
@@ -623,6 +622,7 @@ export function triggerListeners(
   try {
     const listeners = Array.from<Listener>(editor._listeners[type]);
     for (let i = 0; i < listeners.length; i++) {
+      // @ts-ignore
       listeners[i].apply(null, payload);
     }
   } finally {
@@ -672,8 +672,11 @@ function triggerEnqueuedUpdates(editor: LexicalEditor): void {
   const queuedUpdates = editor._updates;
 
   if (queuedUpdates.length !== 0) {
-    const [updateFn, options] = queuedUpdates.shift();
-    beginUpdate(editor, updateFn, options);
+    const queuedUpdate = queuedUpdates.shift();
+    if (queuedUpdate) {
+      const [updateFn, options] = queuedUpdate;
+      beginUpdate(editor, updateFn, options);
+    }
   }
 }
 
@@ -708,28 +711,32 @@ function processNestedUpdates(
   // to handle each update as we go until the updates array is
   // empty.
   while (queuedUpdates.length !== 0) {
-    const [nextUpdateFn, options] = queuedUpdates.shift();
-    let onUpdate;
-    let tag;
+    const queuedUpdate = queuedUpdates.shift();
+    if (queuedUpdate) {
+      const [nextUpdateFn, options] = queuedUpdate;
 
-    if (options !== undefined) {
-      onUpdate = options.onUpdate;
-      tag = options.tag;
+      let onUpdate;
+      let tag;
 
-      if (options.skipTransforms) {
-        skipTransforms = true;
+      if (options !== undefined) {
+        onUpdate = options.onUpdate;
+        tag = options.tag;
+
+        if (options.skipTransforms) {
+          skipTransforms = true;
+        }
+
+        if (onUpdate) {
+          editor._deferred.push(onUpdate);
+        }
+
+        if (tag) {
+          editor._updateTags.add(tag);
+        }
       }
 
-      if (onUpdate) {
-        editor._deferred.push(onUpdate);
-      }
-
-      if (tag) {
-        editor._updateTags.add(tag);
-      }
+      nextUpdateFn();
     }
-
-    nextUpdateFn();
   }
 
   return skipTransforms;
@@ -753,7 +760,7 @@ function beginUpdate(
       updateTags.add(tag);
     }
 
-    skipTransforms = options.skipTransforms;
+    skipTransforms = options.skipTransforms || false;
   }
 
   if (onUpdate) {
@@ -836,7 +843,9 @@ function beginUpdate(
     }
   } catch (error) {
     // Report errors
-    editor._onError(error);
+    if (error instanceof Error) {
+      editor._onError(error);
+    }
 
     // Restore existing editor state to the DOM
     editor._pendingEditorState = currentEditorState;

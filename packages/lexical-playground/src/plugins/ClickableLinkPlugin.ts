@@ -26,7 +26,7 @@ export default function ClickableLinkPlugin({
 }: {
   filter?: LinkFilter;
   newTab?: boolean;
-}): JSX.Element {
+}): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
     function onClick(e: Event) {
@@ -69,10 +69,12 @@ export default function ClickableLinkPlugin({
       }
 
       try {
-        window.open(
-          href,
-          newTab || event.metaKey || event.ctrlKey ? '_blank' : '_self',
-        );
+        if (href !== null) {
+          window.open(
+            href,
+            newTab || event.metaKey || event.ctrlKey ? '_blank' : '_self',
+          );
+        }
       } catch {
         // It didn't work, which is better than throwing an exception!
       }
@@ -105,16 +107,13 @@ function getLinkDomNode(
   editor: LexicalEditor,
 ): HTMLAnchorElement | null {
   return editor.getEditorState().read(() => {
-    // $FlowExpectedError[incompatible-cast]
     const domNode = event.target as Node;
 
     if (isLinkDomNode(domNode)) {
-      // $FlowExpectedError[incompatible-cast]
       return domNode as HTMLAnchorElement;
     }
 
     if (domNode.parentNode && isLinkDomNode(domNode.parentNode)) {
-      // $FlowExpectedError[incompatible-cast]
       return domNode.parentNode as HTMLAnchorElement;
     }
 

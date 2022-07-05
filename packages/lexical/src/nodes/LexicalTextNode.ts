@@ -25,6 +25,7 @@ import invariant from 'shared/invariant';
 
 import {
   COMPOSITION_SUFFIX,
+  DETAIL_TYPE_TO_DETAIL,
   IS_BOLD,
   IS_CODE,
   IS_DIRECTIONLESS,
@@ -78,6 +79,8 @@ export type TextFormatType =
   | 'subscript'
   | 'superscript';
 
+export type TextDetailType = 'directionless' | 'unmergable';
+
 export type TextModeType = 'normal' | 'token' | 'segmented' | 'inert';
 
 export type TextMark = {end: null | number; id: string; start: null | number};
@@ -116,10 +119,7 @@ function setTextThemeClassNames(
 ): void {
   const domClassList = dom.classList;
   // Firstly we handle the base theme.
-  let classNames = getCachedClassNameArray<TextNodeThemeClasses>(
-    textClassNames,
-    'base',
-  );
+  let classNames = getCachedClassNameArray(textClassNames, 'base');
   if (classNames !== undefined) {
     domClassList.add(...classNames);
   }
@@ -128,7 +128,7 @@ function setTextThemeClassNames(
   // the same CSS property will need to be used: text-decoration.
   // In an ideal world we shouldn't have to do this, but there's no
   // easy workaround for many atomic CSS systems today.
-  classNames = getCachedClassNameArray<TextNodeThemeClasses>(
+  classNames = getCachedClassNameArray(
     textClassNames,
     'underlineStrikethrough',
   );
@@ -152,10 +152,7 @@ function setTextThemeClassNames(
   for (const key in TEXT_TYPE_TO_FORMAT) {
     const format = key;
     const flag = TEXT_TYPE_TO_FORMAT[format];
-    classNames = getCachedClassNameArray<TextNodeThemeClasses>(
-      textClassNames,
-      key,
-    );
+    classNames = getCachedClassNameArray(textClassNames, key);
     if (classNames !== undefined) {
       if (nextFormat & flag) {
         if (
@@ -210,17 +207,21 @@ function setTextContent(
   const isComposing = node.isComposing();
   // Always add a suffix if we're composing a node
   const suffix = isComposing ? COMPOSITION_SUFFIX : '';
-  const text = nextText + suffix;
+  const text: string = nextText + suffix;
 
   if (firstChild == null) {
     dom.textContent = text;
   } else {
     const nodeValue = firstChild.nodeValue;
-    if (nodeValue !== text)
+    if (nodeValue !== text) {
       if (isComposing || IS_FIREFOX) {
         // We also use the diff composed text for general text in FF to avoid
+        // We also use the diff composed text for general text in FF to avoid
         // the spellcheck red line from flickering.
-        const [index, remove, insert] = diffComposedText(nodeValue, text);
+        const [index, remove, insert] = diffComposedText(
+          nodeValue as string,
+          text,
+        );
         if (remove !== 0) {
           // @ts-expect-error
           firstChild.deleteData(index, remove);
@@ -230,6 +231,7 @@ function setTextContent(
       } else {
         firstChild.nodeValue = text;
       }
+    }
   }
 }
 
@@ -457,7 +459,7 @@ export class TextNode extends LexicalNode {
         conversion: convertTextFormatElement,
         priority: 0,
       }),
-      span: (node: Node) => ({
+      span: (node: HTMLSpanElement) => ({
         conversion: convertSpanElement,
         priority: 0,
       }),
@@ -501,17 +503,21 @@ export class TextNode extends LexicalNode {
     return;
   }
 
-  setFormat(format: number): this {
+  // TODO 0.4 This should just be a `string`.
+  setFormat(format: TextFormatType | number): this {
     errorOnReadOnly();
     const self = this.getWritable();
-    self.__format = format;
+    self.__format =
+      typeof format === 'string' ? TEXT_TYPE_TO_FORMAT[format] : format;
     return self;
   }
 
-  setDetail(detail: number): this {
+  // TODO 0.4 This should just be a `string`.
+  setDetail(detail: TextDetailType | number): this {
     errorOnReadOnly();
     const self = this.getWritable();
-    self.__detail = detail;
+    self.__detail =
+      typeof detail === 'string' ? DETAIL_TYPE_TO_DETAIL[detail] : detail;
     return self;
   }
 
@@ -819,16 +825,18 @@ export class TextNode extends LexicalNode {
   }
 }
 
-function convertSpanElement(domNode: HTMLSpanElement): DOMConversionOutput {
+function convertSpanElement(domNode: Node): DOMConversionOutput {
   // domNode is a <span> since we matched it by nodeName
-  const span = domNode;
+  const span = domNode as HTMLSpanElement;
   // Google Docs uses span tags + font-weight for bold text
   const hasBoldFontWeight = span.style.fontWeight === '700';
-  // Google Docs uses span tags + text-decoration for strikethrough text
+  // Google Docs uses span tags + text-decoration: line-through for strikethrough text
   const hasLinethroughTextDecoration =
     span.style.textDecoration === 'line-through';
   // Google Docs uses span tags + font-style for italic text
   const hasItalicFontStyle = span.style.fontStyle === 'italic';
+  // Google Docs uses span tags + text-decoration: underline for underline text
+  const hasUnderlineTextDecoration = span.style.textDecoration === 'underline';
 
   return {
     forChild: (lexicalNode) => {
@@ -840,6 +848,9 @@ function convertSpanElement(domNode: HTMLSpanElement): DOMConversionOutput {
       }
       if ($isTextNode(lexicalNode) && hasItalicFontStyle) {
         lexicalNode.toggleFormat('italic');
+      }
+      if ($isTextNode(lexicalNode) && hasUnderlineTextDecoration) {
+        lexicalNode.toggleFormat('underline');
       }
 
       return lexicalNode;
@@ -864,7 +875,8 @@ function convertBringAttentionToElement(domNode: Node): DOMConversionOutput {
   };
 }
 function convertTextDOMNode(domNode: Node): DOMConversionOutput {
-  const {parentElement, textContent} = domNode;
+  const {parentElement} = domNode;
+  const textContent = domNode.textContent || '';
   const textContentTrim = textContent.trim();
   const isPre =
     parentElement != null && parentElement.tagName.toLowerCase() === 'pre';

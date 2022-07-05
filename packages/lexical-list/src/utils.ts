@@ -10,7 +10,13 @@ import type {LexicalNode} from 'lexical';
 
 import invariant from 'shared/invariant';
 
-import {$isListItemNode, $isListNode, ListItemNode, ListNode} from './';
+import {
+  $createListItemNode,
+  $isListItemNode,
+  $isListNode,
+  ListItemNode,
+  ListNode,
+} from './';
 
 export function $getListDepth(listNode: ListNode): number {
   let depth = 1;
@@ -41,7 +47,7 @@ export function $getTopListNode(listItem: LexicalNode): ListNode {
     invariant(false, 'A ListItemNode must have a ListNode for a parent.');
   }
 
-  let parent = list;
+  let parent: ListNode | null = list;
 
   while (parent !== null) {
     parent = parent.getParent();
@@ -61,7 +67,7 @@ export function $isLastItemInList(listItem: ListItemNode): boolean {
   if ($isListNode(firstChild)) {
     return false;
   }
-  let parent = listItem;
+  let parent: ListItemNode | null = listItem;
 
   while (parent !== null) {
     if ($isListItemNode(parent)) {
@@ -107,7 +113,7 @@ export function isNestedListNode(
 export function findNearestListItemNode(
   node: LexicalNode,
 ): ListItemNode | null {
-  let currentNode = node;
+  let currentNode: LexicalNode | null = node;
 
   while (currentNode !== null) {
     if ($isListItemNode(currentNode)) {
@@ -163,4 +169,9 @@ export function $removeHighestEmptyListParent(
   }
 
   emptyListPtr.remove();
+}
+
+export function wrapInListItem(node: LexicalNode): ListItemNode {
+  const listItemWrapper = $createListItemNode();
+  return listItemWrapper.append(node);
 }

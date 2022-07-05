@@ -8,7 +8,6 @@
 
 import type {EditorState, SerializedEditorState} from './LexicalEditorState';
 import type {DOMConversion, LexicalNode, NodeKey} from './LexicalNode';
-import type {Klass} from 'shared/types';
 
 import getDOMSelection from 'shared/getDOMSelection';
 import invariant from 'shared/invariant';
@@ -32,6 +31,11 @@ import {ParagraphNode} from './nodes/LexicalParagraphNode';
 import {RootNode} from './nodes/LexicalRootNode';
 
 export type Spread<T1, T2> = Omit<T2, keyof T1> & T1;
+
+export type Klass<T extends LexicalNode> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  new (...args: any[]): T;
+} & Omit<LexicalNode, 'constructor'>;
 
 export type EditorThemeClassName = string;
 
@@ -57,7 +61,12 @@ export type EditorSetOptions = {
   tag?: string;
 };
 
+export type EditorFocusOptions = {
+  defaultSelection?: 'rootStart' | 'rootEnd';
+};
+
 export type EditorThemeClasses = {
+  characterLimit?: EditorThemeClassName;
   code?: EditorThemeClassName;
   codeLine?: EditorThemeClassName;
   codeHighlight?: Record<string, EditorThemeClassName>;
@@ -101,19 +110,8 @@ export type EditorThemeClasses = {
     base?: EditorThemeClassName;
     focus?: EditorThemeClassName;
   };
-  // Handle other generic values
-  [key: string]:
-    | EditorThemeClassName
-    | TextNodeThemeClasses
-    | {
-        [key: string]:
-          | Array<EditorThemeClassName>
-          | EditorThemeClassName
-          | TextNodeThemeClasses
-          | {
-              [key: string]: EditorThemeClassName;
-            };
-      };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 };
 
 export type EditorConfig = {
@@ -129,7 +127,7 @@ export type RegisteredNode = {
   transforms: Set<Transform<LexicalNode>>;
 };
 
-export type Transform<T> = (node: T) => void;
+export type Transform<T extends LexicalNode> = (node: T) => void;
 
 export type ErrorHandler = (error: Error) => void;
 
@@ -148,7 +146,7 @@ export type UpdateListener = (arg0: {
   tags: Set<string>;
 }) => void;
 
-export type DecoratorListener<T = unknown> = (
+export type DecoratorListener<T = never> = (
   decorator: Record<NodeKey, T>,
 ) => void;
 
@@ -174,7 +172,7 @@ export const COMMAND_PRIORITY_HIGH = 3;
 export const COMMAND_PRIORITY_CRITICAL = 4;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type LexicalCommand<T> = Readonly<Record<string, unknown>>;
+export type LexicalCommand<T = never> = Readonly<Record<string, unknown>>;
 type Commands = Map<
   LexicalCommand<unknown>,
   Array<Set<CommandListener<unknown>>>
@@ -258,10 +256,8 @@ function initializeConversionCache(nodes: RegisteredNodes): DOMConversionCache {
   const handledConversions = new Set();
   nodes.forEach((node) => {
     const importDOM =
-      // @ts-expect-error TODO Replace Class utility type with InstanceType
       node.klass.importDOM != null
-        ? // @ts-expect-error TODO Replace Class utility type with InstanceType
-          node.klass.importDOM.bind(node.klass)
+        ? node.klass.importDOM.bind(node.klass)
         : null;
 
     if (importDOM == null || handledConversions.has(importDOM)) {
@@ -350,7 +346,7 @@ export function createEditor(editorConfig?: {
             // eslint-disable-next-line no-prototype-builtins
             if (!proto.hasOwnProperty('decorate')) {
               console.warn(
-                `${this.constructor.name} must implement "decorate" method`,
+                `${proto.constructor.name} must implement "decorate" method`,
               );
             }
           }
@@ -372,7 +368,6 @@ export function createEditor(editorConfig?: {
           }
         }
       }
-      // @ts-expect-error TODO Replace Class utility type with InstanceType
       const type = klass.getType();
       registeredNodes.set(type, {
         klass,
@@ -390,7 +385,7 @@ export function createEditor(editorConfig?: {
       namespace,
       theme,
     },
-    onError,
+    onError ? onError : console.error,
     initializeConversionCache(registeredNodes),
     isReadOnly,
   );
@@ -411,7 +406,7 @@ export class LexicalEditor {
   _compositionKey: null | NodeKey;
   _deferred: Array<() => void>;
   _keyToDOMMap: Map<NodeKey, HTMLElement>;
-  _updates: Array<[() => void, EditorUpdateOptions]>;
+  _updates: Array<[() => void, EditorUpdateOptions | undefined]>;
   _updating: boolean;
   _listeners: Listeners;
   _commands: Commands;
@@ -568,9 +563,9 @@ export class LexicalEditor {
     }
 
     const listeners = listenersInPriorityOrder[priority];
-    listeners.add(listener);
+    listeners.add(listener as CommandListener<unknown>);
     return () => {
-      listeners.delete(listener);
+      listeners.delete(listener as CommandListener<unknown>);
 
       if (
         listenersInPriorityOrder.every(
@@ -586,7 +581,6 @@ export class LexicalEditor {
     klass: Klass<LexicalNode>,
     listener: MutationListener,
   ): () => void {
-    // @ts-expect-error TODO Replace Class utility type with InstanceType
     const registeredNode = this._nodes.get(klass.getType());
 
     if (registeredNode === undefined) {
@@ -608,7 +602,6 @@ export class LexicalEditor {
     klass: Klass<T>,
     listener: Transform<T>,
   ): () => void {
-    // @ts-expect-error TODO Replace Class utility type with InstanceType
     const type = klass.getType();
 
     const registeredNode = this._nodes.get(type);
@@ -622,17 +615,16 @@ export class LexicalEditor {
     }
 
     const transforms = registeredNode.transforms;
-    transforms.add(listener);
+    transforms.add(listener as Transform<LexicalNode>);
     markAllNodesAsDirty(this, type);
     return () => {
-      transforms.delete(listener);
+      transforms.delete(listener as Transform<LexicalNode>);
     };
   }
 
   hasNodes<T extends Klass<LexicalNode>>(nodes: Array<T>): boolean {
     for (let i = 0; i < nodes.length; i++) {
       const klass = nodes[i];
-      // @ts-expect-error
       const type = klass.getType();
 
       if (!this._nodes.has(type)) {
@@ -753,7 +745,7 @@ export class LexicalEditor {
     updateEditor(this, updateFn, options);
   }
 
-  focus(callbackFn?: () => void): void {
+  focus(callbackFn?: () => void, options: EditorFocusOptions = {}): void {
     const rootElement = this._rootElement;
 
     if (rootElement !== null) {
@@ -769,7 +761,11 @@ export class LexicalEditor {
             // Marking the selection dirty will force the selection back to it
             selection.dirty = true;
           } else if (root.getChildrenSize() !== 0) {
-            root.selectEnd();
+            if (options.defaultSelection === 'rootStart') {
+              root.selectStart();
+            } else {
+              root.selectEnd();
+            }
           }
         },
         {
@@ -804,8 +800,10 @@ export class LexicalEditor {
   }
 
   setReadOnly(readOnly: boolean): void {
-    this._readOnly = readOnly;
-    triggerListeners('readonly', this, true, readOnly);
+    if (this._readOnly !== readOnly) {
+      this._readOnly = readOnly;
+      triggerListeners('readonly', this, true, readOnly);
+    }
   }
 
   toJSON(): SerializedEditor {

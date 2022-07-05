@@ -86,7 +86,6 @@ pre {
   padding: 10px;
   font-size: 12px;
   overflow: auto;
-  white-space: pre-wrap;
   max-height: 180px;
 }
 
@@ -96,13 +95,11 @@ pre {
   color: #fff;
   padding: 0;
   font-size: 12px;
-  white-space: pre-wrap;
   margin: 1px auto 10px auto;
   max-height: 250px;
   position: relative;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
-  overflow: hidden;
 }
 
 pre::-webkit-scrollbar {
@@ -441,6 +438,14 @@ i.equation {
 
 i.gif {
   background-image: url(images/icons/filetype-gif.svg);
+}
+
+i.copy {
+  background-image: url(images/icons/copy.svg);
+}
+
+i.success {
+  background-image: url(images/icons/success.svg);
 }
 
 .link-editor .button.active,
@@ -1388,15 +1393,7 @@ button.action-button:disabled {
   background-size: contain;
 }
 
-.PollNode__optionCheckboxChecked {
-  background-image: url(images/icons/check-lg.svg);
-}
-
-.PollNode__optionDelete {
-  background-image: url(images/icons/x-lg.svg);
-}
-
-.character-style-popup {
+.floating-text-format-popup {
   display: flex;
   margin-bottom: 1px;
   background: #fff;
@@ -1415,7 +1412,7 @@ button.action-button:disabled {
   height: 35px;
 }
 
-.character-style-popup button.popup-item {
+.floating-text-format-popup button.popup-item {
   border: 0;
   display: flex;
   background: none;
@@ -1425,15 +1422,15 @@ button.action-button:disabled {
   vertical-align: middle;
 }
 
-.character-style-popup button.popup-item:disabled {
+.floating-text-format-popup button.popup-item:disabled {
   cursor: not-allowed;
 }
 
-.character-style-popup button.popup-item.spaced {
+.floating-text-format-popup button.popup-item.spaced {
   margin-right: 2px;
 }
 
-.character-style-popup button.popup-item i.format {
+.floating-text-format-popup button.popup-item i.format {
   background-size: contain;
   display: inline-block;
   height: 18px;
@@ -1444,23 +1441,23 @@ button.action-button:disabled {
   opacity: 0.6;
 }
 
-.character-style-popup button.popup-item:disabled i.format {
+.floating-text-format-popup button.popup-item:disabled i.format {
   opacity: 0.2;
 }
 
-.character-style-popup button.popup-item.active {
+.floating-text-format-popup button.popup-item.active {
   background-color: rgba(223, 232, 250, 0.3);
 }
 
-.character-style-popup button.popup-item.active i {
+.floating-text-format-popup button.popup-item.active i {
   opacity: 1;
 }
 
-.character-style-popup .popup-item:hover:not([disabled]) {
+.floating-text-format-popup .popup-item:hover:not([disabled]) {
   background-color: #eee;
 }
 
-.character-style-popup select.popup-item {
+.floating-text-format-popup select.popup-item {
   border: 0;
   display: flex;
   background: none;
@@ -1475,12 +1472,12 @@ button.action-button:disabled {
   text-overflow: ellipsis;
 }
 
-.character-style-popup select.code-language {
+.floating-text-format-popup select.code-language {
   text-transform: capitalize;
   width: 130px;
 }
 
-.character-style-popup .popup-item .text {
+.floating-text-format-popup .popup-item .text {
   display: flex;
   line-height: 20px;
   width: 200px;
@@ -1494,7 +1491,7 @@ button.action-button:disabled {
   text-align: left;
 }
 
-.character-style-popup .popup-item .icon {
+.floating-text-format-popup .popup-item .icon {
   display: flex;
   width: 20px;
   height: 20px;
@@ -1504,7 +1501,7 @@ button.action-button:disabled {
   background-size: contain;
 }
 
-.character-style-popup i.chevron-down {
+.floating-text-format-popup i.chevron-down {
   margin-top: 3px;
   width: 16px;
   height: 16px;
@@ -1512,7 +1509,7 @@ button.action-button:disabled {
   user-select: none;
 }
 
-.character-style-popup i.chevron-down.inside {
+.floating-text-format-popup i.chevron-down.inside {
   width: 16px;
   height: 16px;
   display: flex;
@@ -1522,7 +1519,7 @@ button.action-button:disabled {
   pointer-events: none;
 }
 
-.character-style-popup .divider {
+.floating-text-format-popup .divider {
   width: 1px;
   background-color: #eee;
   margin: 0 4px;

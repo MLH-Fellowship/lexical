@@ -44,7 +44,7 @@ export function getIsProcesssingMutations(): boolean {
   return isProcessingMutations;
 }
 
-function updateTimeStamp(event) {
+function updateTimeStamp(event: Event) {
   lastTextEntryTimeStamp = event.timeStamp;
 }
 
@@ -62,7 +62,8 @@ function isManagedLineBreak(
   return (
     // @ts-expect-error: internal field
     target.__lexicalLineBreak === dom ||
-    dom['__lexicalKey_' + editor._key] !== undefined
+    // @ts-ignore We intentionally add this to the Node.
+    dom[`__lexicalKey_${editor._key}`] !== undefined
   );
 }
 
@@ -90,7 +91,9 @@ function handleTextMutation(
   }
 
   const text = target.nodeValue;
-  $updateTextNodeFromDOMContent(node, text, anchorOffset, focusOffset, false);
+  if (text !== null) {
+    $updateTextNodeFromDOMContent(node, text, anchorOffset, focusOffset, false);
+  }
 }
 
 function shouldUpdateTextNodeFromMutation(
@@ -124,7 +127,7 @@ export function $flushMutations(
       const selection = $getSelection() || getLastSelection(editor);
       const badDOMTargets = new Map();
       const rootElement = editor.getRootElement();
-      // We use the current edtior state, as that reflects what is
+      // We use the current editor state, as that reflects what is
       // actually "on screen".
       const currentEditorState = editor._editorState;
       let shouldRevertSelection = false;

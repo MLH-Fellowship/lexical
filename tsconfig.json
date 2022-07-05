@@ -6,7 +6,7 @@
     "moduleResolution": "node",
     "downlevelIteration": true,
     "noEmit": true,
-    "strict": false,
+    "strict": true,
     "baseUrl": ".",
     "typeRoots": ["node_modules/@types", "libdefs/globals"],
     "skipLibCheck": true,
@@ -179,12 +179,12 @@
       "shared/invariant": ["./packages/shared/src/invariant.ts"],
       "shared/warnOnlyOnce": ["./packages/shared/src/warnOnlyOnce.ts"],
       "shared/environment": ["./packages/shared/src/environment.ts"],
-      "shared/useLayoutEffect": ["./packages/shared/src/useLayoutEffect.ts"],
-      "shared/types": ["./packages/shared/src/types.d.ts"]
+      "shared/useLayoutEffect": ["./packages/shared/src/useLayoutEffect.ts"]
     }
   },
   "include": ["./libdefs", "./packages"],
   "exclude": [
+    "**/__tests__/**",
     "**/dist/**",
     "**/npm/**",
     "**/node_modules/**",

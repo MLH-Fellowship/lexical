@@ -6,11 +6,7 @@
  *
  */
 
-import type {
-  EditorConfig,
-  EditorThemeClasses,
-  LexicalEditor,
-} from '../LexicalEditor';
+import type {EditorConfig, LexicalEditor} from '../LexicalEditor';
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -45,10 +41,7 @@ export class ParagraphNode extends ElementNode {
 
   createDOM(config: EditorConfig): HTMLElement {
     const dom = document.createElement('p');
-    const classNames = getCachedClassNameArray<EditorThemeClasses>(
-      config.theme,
-      'paragraph',
-    );
+    const classNames = getCachedClassNameArray(config.theme, 'paragraph');
     if (classNames !== undefined) {
       const domClassList = dom.classList;
       domClassList.add(...classNames);
@@ -71,10 +64,8 @@ export class ParagraphNode extends ElementNode {
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const {element} = super.exportDOM(editor);
 
-    if (element) {
-      if (this.getTextContentSize() === 0) {
-        element.append(document.createElement('br'));
-      }
+    if (element && this.isEmpty()) {
+      element.append(document.createElement('br'));
     }
 
     return {
