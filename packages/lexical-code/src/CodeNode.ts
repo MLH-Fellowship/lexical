@@ -5,6 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+// eslint-disable-next-line simple-import-sort/imports
+import type {
+  DOMConversionMap,
+  DOMConversionOutput,
+  EditorConfig,
+  LexicalNode,
+  NodeKey,
+  ParagraphNode,
+  RangeSelection,
+  SerializedElementNode,
+  Spread,
+} from 'lexical';
+
+import * as Prism from 'prismjs';
+
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-markup';
@@ -17,29 +33,16 @@ import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-rust';
 import 'prismjs/components/prism-swift';
 
-import {
-  $createCodeHighlightNode,
-  CodeHighlightNode,
-  getFirstCodeHighlightNodeOfLine,
-} from '@lexical/code';
 import {addClassNamesToElement} from '@lexical/utils';
 import {
-  $createLineBreakNode,
   $createParagraphNode,
   $getSelection,
   $isRangeSelection,
-  DOMConversionMap,
-  DOMConversionOutput,
-  EditorConfig,
   ElementNode,
-  LexicalNode,
-  NodeKey,
-  ParagraphNode,
-  RangeSelection,
-  SerializedElementNode,
+  $createLineBreakNode,
 } from 'lexical';
-import {Spread} from 'libdefs/globals';
-import * as Prism from 'prismjs';
+import {CodeHighlightNode, $createCodeHighlightNode} from './CodeHighlightNode';
+import {getFirstCodeHighlightNodeOfLine} from './HighlighterHelper';
 
 type SerializedCodeNode = Spread<
   {
@@ -78,10 +81,6 @@ function convertDivElement(domNode: Node): DOMConversionOutput {
   };
 }
 
-function convertTableElement(): DOMConversionOutput {
-  return {node: $createCodeNode()};
-}
-
 function convertCodeNoop(): DOMConversionOutput {
   return {node: null};
 }
@@ -101,9 +100,12 @@ function convertTableCellElement(domNode: Node): DOMConversionOutput {
     node: null,
   };
 }
-
 function isCodeElement(div: HTMLDivElement): boolean {
   return div.style.fontFamily.match('monospace') !== null;
+}
+
+function convertTableElement(): DOMConversionOutput {
+  return {node: $createCodeNode()};
 }
 
 function isGitHubCodeCell(
@@ -234,6 +236,7 @@ export class CodeNode extends ElementNode {
       ...super.exportJSON(),
       language: this.getLanguage(),
       type: 'code',
+      version: 1,
     };
   }
 

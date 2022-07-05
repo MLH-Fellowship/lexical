@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict
  */
 
 import {expect, test as base} from '@playwright/test';
@@ -114,16 +113,13 @@ async function assertHTMLOnPageOrFrame(
 export async function assertHTML(
   page,
   expectedHtml,
-  {
-    ignoreSecondFrame = false,
-    ignoreClasses = false,
-    ignoreInlineStyles = false,
-  } = {},
+  expectedHtmlFrameRight = expectedHtml,
+  {ignoreClasses = false, ignoreInlineStyles = false} = {},
 ) {
   if (IS_COLLAB) {
-    await retryAsync(
-      page,
-      async () => {
+    const withRetry = async (fn) => await retryAsync(page, fn, 5);
+    await Promise.all([
+      withRetry(async () => {
         const leftFrame = await page.frame('left');
         return assertHTMLOnPageOrFrame(
           leftFrame,
@@ -131,24 +127,17 @@ export async function assertHTML(
           ignoreClasses,
           ignoreInlineStyles,
         );
-      },
-      5,
-    );
-    if (!ignoreSecondFrame) {
-      await retryAsync(
-        page,
-        async () => {
-          const rightFrame = await page.frame('right');
-          return assertHTMLOnPageOrFrame(
-            rightFrame,
-            expectedHtml,
-            ignoreClasses,
-            ignoreInlineStyles,
-          );
-        },
-        5,
-      );
-    }
+      }),
+      withRetry(async () => {
+        const rightFrame = await page.frame('right');
+        return assertHTMLOnPageOrFrame(
+          rightFrame,
+          expectedHtmlFrameRight,
+          ignoreClasses,
+          ignoreInlineStyles,
+        );
+      }),
+    ]);
   } else {
     await assertHTMLOnPageOrFrame(
       page,
@@ -598,6 +587,15 @@ export async function selectFromAdditionalStylesDropdown(page, selector) {
   await click(page, '.dropdown ' + selector);
 }
 
+export async function selectFromBackgroundColorPicker(page) {
+  await click(page, '.toolbar-item[aria-label="Formatting background color"]');
+  await click(page, '.color-picker-basic-color button:first-child'); //Defaulted to red
+}
+
+export async function selectFromColorPicker(page) {
+  await click(page, '.toolbar-item[aria-label="Formatting text color"]');
+  await click(page, '.color-picker-basic-color button:first-child'); //Defaulted to red
+}
 export async function selectFromFormatDropdown(page, selector) {
   await click(
     page,

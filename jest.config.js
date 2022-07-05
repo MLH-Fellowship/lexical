@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
 'use strict';
 
 const common = {
@@ -91,6 +99,8 @@ module.exports = {
           '<rootDir>/packages/shared/src/simpleDiffWithCursor.ts',
         '^shared/useLayoutEffect$':
           '<rootDir>/packages/shared/src/useLayoutEffect.ts',
+        '^shared/warnOnlyOnce$':
+          '<rootDir>/packages/shared/src/warnOnlyOnce.ts',
         formatProdErrorMessage:
           '<rootDir>/scripts/error-codes/formatProdErrorMessage.js',
       },

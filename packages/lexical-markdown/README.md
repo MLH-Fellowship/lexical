@@ -22,21 +22,21 @@ editor.update(() => {
 
 It can also be used for initializing editor's state from markdown string. Here's an example with react `<RichTextPlugin>`
 ```jsx
-<LexicalComposer>
-  <RichTextPlugin initialEditorState={() => {
+<LexicalComposer initialEditorState={() => {
     $convertFromMarkdownString(markdown, TRANSFORMERS);
-  }} />
+  }}>
+  <RichTextPlugin />
 </LexicalComposer>
 ```
 
 ## Shortcuts
-Can use `<LexicalMarkdownShortcutPlugin>` if using React
+Can use `<MarkdownShortcutPlugin>` if using React
 ```jsx
 import { TRANSFORMERS } from '@lexical/markdown';
 import {MarkdownShortcutPlugin} from '@lexical/react/LexicalMarkdownShortcutPlugin';
 
 <LexicalComposer>
-  <LexicalMarkdownShortcutPlugin transformers={TRANSFORMERS} />
+  <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 </LexicalComposer>
 ```
 

@@ -7,20 +7,20 @@
  */
 
 // eslint-disable-next-line simple-import-sort/imports
-
-import {
-  addClassNamesToElement,
-  removeClassNamesFromElement,
-} from '@lexical/utils';
-import {
+import type {
   EditorConfig,
   EditorThemeClasses,
   LexicalNode,
   NodeKey,
   SerializedTextNode,
-  TextNode,
+  Spread,
 } from 'lexical';
-import {Spread} from 'libdefs/globals';
+
+import {
+  addClassNamesToElement,
+  removeClassNamesFromElement,
+} from '@lexical/utils';
+import {TextNode} from 'lexical';
 
 type SerializedCodeHighlightNode = Spread<
   {
@@ -30,18 +30,6 @@ type SerializedCodeHighlightNode = Spread<
   },
   SerializedTextNode
 >;
-
-function getHighlightThemeClass(
-  theme: EditorThemeClasses,
-  highlightType: string | undefined,
-): string | undefined {
-  return (
-    highlightType &&
-    theme &&
-    theme.codeHighlight &&
-    theme.codeHighlight[highlightType]
-  );
-}
 export class CodeHighlightNode extends TextNode {
   __highlightType: string | null | undefined;
 
@@ -105,7 +93,10 @@ export class CodeHighlightNode extends TextNode {
   static importJSON(
     serializedNode: SerializedCodeHighlightNode,
   ): CodeHighlightNode {
-    const node = $createCodeHighlightNode(serializedNode.highlightType);
+    const node = $createCodeHighlightNode(
+      serializedNode.text,
+      serializedNode.highlightType,
+    );
     node.setFormat(serializedNode.format);
     node.setDetail(serializedNode.detail);
     node.setMode(serializedNode.mode);
@@ -118,6 +109,7 @@ export class CodeHighlightNode extends TextNode {
       ...super.exportJSON(),
       highlightType: this.getHighlightType(),
       type: 'code-highlight',
+      version: 1,
     };
   }
 
@@ -125,6 +117,18 @@ export class CodeHighlightNode extends TextNode {
   setFormat(format: number): this {
     return this;
   }
+}
+
+function getHighlightThemeClass(
+  theme: EditorThemeClasses,
+  highlightType: string | undefined,
+): string | undefined {
+  return (
+    highlightType &&
+    theme &&
+    theme.codeHighlight &&
+    theme.codeHighlight[highlightType]
+  );
 }
 
 export function $createCodeHighlightNode(

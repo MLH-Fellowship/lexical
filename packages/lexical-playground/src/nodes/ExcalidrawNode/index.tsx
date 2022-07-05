@@ -16,6 +16,7 @@ import type {
   LexicalNode,
   NodeKey,
   SerializedLexicalNode,
+  Spread,
 } from 'lexical';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
@@ -31,7 +32,6 @@ import {
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
 } from 'lexical';
-import {Spread} from 'libdefs/globals';
 import * as React from 'react';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
@@ -296,7 +296,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
     self.__data = data;
   }
 
-  decorate(editor: LexicalEditor): JSX.Element {
+  decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
     return <ExcalidrawComponent nodeKey={this.getKey()} data={this.__data} />;
   }
 }

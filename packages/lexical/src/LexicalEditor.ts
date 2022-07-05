@@ -8,10 +8,10 @@
 
 import type {EditorState, SerializedEditorState} from './LexicalEditorState';
 import type {DOMConversion, LexicalNode, NodeKey} from './LexicalNode';
+import type {Klass} from 'shared/types';
 
 import getDOMSelection from 'shared/getDOMSelection';
 import invariant from 'shared/invariant';
-import {Class} from 'utility-types';
 
 import {$getRoot, $getSelection, TextNode} from '.';
 import {FULL_RECONCILE, NO_DIRTY_NODES} from './LexicalConstants';
@@ -20,6 +20,7 @@ import {addRootElementEvents, removeRootElementEvents} from './LexicalEvents';
 import {flushRootMutations, initMutationObserver} from './LexicalMutations';
 import {
   commitPendingUpdates,
+  internalGetActiveEditor,
   parseEditorState,
   triggerListeners,
   updateEditor,
@@ -30,6 +31,8 @@ import {LineBreakNode} from './nodes/LexicalLineBreakNode';
 import {ParagraphNode} from './nodes/LexicalParagraphNode';
 import {RootNode} from './nodes/LexicalRootNode';
 
+export type Spread<T1, T2> = Omit<T2, keyof T1> & T1;
+
 export type EditorThemeClassName = string;
 
 export type TextNodeThemeClasses = {
@@ -38,6 +41,8 @@ export type TextNodeThemeClasses = {
   code?: EditorThemeClassName;
   italic?: EditorThemeClassName;
   strikethrough?: EditorThemeClassName;
+  subscript?: EditorThemeClassName;
+  superscript?: EditorThemeClassName;
   underline?: EditorThemeClassName;
   underlineStrikethrough?: EditorThemeClassName;
 };
@@ -54,6 +59,7 @@ export type EditorSetOptions = {
 
 export type EditorThemeClasses = {
   code?: EditorThemeClassName;
+  codeLine?: EditorThemeClassName;
   codeHighlight?: Record<string, EditorThemeClassName>;
   hashtag?: EditorThemeClassName;
   heading?: {
@@ -62,6 +68,7 @@ export type EditorThemeClasses = {
     h3?: EditorThemeClassName;
     h4?: EditorThemeClassName;
     h5?: EditorThemeClassName;
+    h6?: EditorThemeClassName;
   };
   image?: EditorThemeClassName;
   link?: EditorThemeClassName;
@@ -90,6 +97,10 @@ export type EditorThemeClasses = {
   tableCellHeader?: EditorThemeClassName;
   tableRow?: EditorThemeClassName;
   text?: TextNodeThemeClasses;
+  embedBlock?: {
+    base?: EditorThemeClassName;
+    focus?: EditorThemeClassName;
+  };
   // Handle other generic values
   [key: string]:
     | EditorThemeClassName
@@ -107,13 +118,14 @@ export type EditorThemeClasses = {
 
 export type EditorConfig = {
   disableEvents?: boolean;
+  namespace: string;
   theme: EditorThemeClasses;
 };
 
 export type RegisteredNodes = Map<string, RegisteredNode>;
 
 export type RegisteredNode = {
-  klass: Class<LexicalNode>;
+  klass: Klass<LexicalNode>;
   transforms: Set<Transform<LexicalNode>>;
 };
 
@@ -121,9 +133,9 @@ export type Transform<T> = (node: T) => void;
 
 export type ErrorHandler = (error: Error) => void;
 
-export type MutationListeners = Map<MutationListener, Class<LexicalNode>>;
+export type MutationListeners = Map<MutationListener, Klass<LexicalNode>>;
 
-export type MutatedNodes = Map<Class<LexicalNode>, Map<NodeKey, NodeMutation>>;
+export type MutatedNodes = Map<Klass<LexicalNode>, Map<NodeKey, NodeMutation>>;
 
 export type NodeMutation = 'created' | 'updated' | 'destroyed';
 
@@ -136,7 +148,9 @@ export type UpdateListener = (arg0: {
   tags: Set<string>;
 }) => void;
 
-export type DecoratorListener = (decorator: Record<NodeKey, unknown>) => void;
+export type DecoratorListener<T = unknown> = (
+  decorator: Record<NodeKey, T>,
+) => void;
 
 export type RootListener = (
   rootElement: null | HTMLElement,
@@ -198,6 +212,10 @@ type DOMConversionCache = Map<
   Array<(node: Node) => DOMConversion | null>
 >;
 
+export type SerializedEditor = {
+  editorState: SerializedEditorState;
+};
+
 export function resetEditor(
   editor: LexicalEditor,
   prevRootElement: null | HTMLElement,
@@ -239,11 +257,14 @@ function initializeConversionCache(nodes: RegisteredNodes): DOMConversionCache {
   const conversionCache = new Map();
   const handledConversions = new Set();
   nodes.forEach((node) => {
-    // @ts-expect-error TODO Replace Class utility type with InstanceType
-    const importDOM = node.klass.importDOM.bind(node.klass);
+    const importDOM =
+      // @ts-expect-error TODO Replace Class utility type with InstanceType
+      node.klass.importDOM != null
+        ? // @ts-expect-error TODO Replace Class utility type with InstanceType
+          node.klass.importDOM.bind(node.klass)
+        : null;
 
-    // debugger;
-    if (handledConversions.has(importDOM)) {
+    if (importDOM == null || handledConversions.has(importDOM)) {
       return;
     }
 
@@ -266,22 +287,26 @@ function initializeConversionCache(nodes: RegisteredNodes): DOMConversionCache {
   return conversionCache;
 }
 
-export function createEditor(
-  editorConfig: {
-    disableEvents?: boolean;
-    editorState?: EditorState;
-    nodes?: ReadonlyArray<Class<LexicalNode>>;
-    onError?: ErrorHandler;
-    parentEditor?: LexicalEditor;
-    readOnly?: boolean;
-    theme?: EditorThemeClasses;
-  } = {},
-): LexicalEditor {
-  const config = editorConfig;
+export function createEditor(editorConfig?: {
+  disableEvents?: boolean;
+  editorState?: EditorState;
+  namespace?: string;
+  nodes?: ReadonlyArray<Klass<LexicalNode>>;
+  onError?: ErrorHandler;
+  parentEditor?: LexicalEditor;
+  readOnly?: boolean;
+  theme?: EditorThemeClasses;
+}): LexicalEditor {
+  const config = editorConfig || {};
+  const activeEditor = internalGetActiveEditor();
   const theme = config.theme || {};
-  const parentEditor = config.parentEditor || null;
+  const parentEditor =
+    editorConfig === undefined ? activeEditor : config.parentEditor || null;
   const disableEvents = config.disableEvents || false;
   const editorState = createEmptyEditorState();
+  const namespace =
+    config.namespace ||
+    (parentEditor !== null ? parentEditor._config.namespace : createUID());
   const initialEditorState = config.editorState;
   const nodes = [
     RootNode,
@@ -292,64 +317,68 @@ export function createEditor(
   ];
   const onError = config.onError;
   const isReadOnly = config.readOnly || false;
-  const registeredNodes = new Map();
+  let registeredNodes;
 
-  for (let i = 0; i < nodes.length; i++) {
-    const klass = nodes[i];
-    // Ensure custom nodes implement required methods.
-    // @ts-ignore
-    if (__DEV__) {
-      const name = klass.name;
-      if (name !== 'RootNode') {
-        const proto = klass.prototype;
-        ['getType', 'clone'].forEach((method) => {
-          // eslint-disable-next-line no-prototype-builtins
-          if (!klass.hasOwnProperty(method)) {
-            console.warn(`${name} must implement static "${method}" method`);
-          }
-        });
-        if (
-          // eslint-disable-next-line no-prototype-builtins
-          !klass.hasOwnProperty('importDOM') &&
-          // eslint-disable-next-line no-prototype-builtins
-          klass.hasOwnProperty('exportDOM')
-        ) {
-          console.warn(
-            `${name} should implement "importDOM" if using a custom "exportDOM" method to ensure HTML serialization (important for copy & paste) works as expected`,
-          );
-        }
-        if (proto instanceof DecoratorNode) {
-          // eslint-disable-next-line no-prototype-builtins
-          if (!proto.hasOwnProperty('decorate')) {
+  if (editorConfig === undefined && activeEditor !== null) {
+    registeredNodes = activeEditor._nodes;
+  } else {
+    registeredNodes = new Map();
+    for (let i = 0; i < nodes.length; i++) {
+      const klass = nodes[i];
+      // Ensure custom nodes implement required methods.
+      if (__DEV__) {
+        const name = klass.name;
+        if (name !== 'RootNode') {
+          const proto = klass.prototype;
+          ['getType', 'clone'].forEach((method) => {
+            // eslint-disable-next-line no-prototype-builtins
+            if (!klass.hasOwnProperty(method)) {
+              console.warn(`${name} must implement static "${method}" method`);
+            }
+          });
+          if (
+            // eslint-disable-next-line no-prototype-builtins
+            !klass.hasOwnProperty('importDOM') &&
+            // eslint-disable-next-line no-prototype-builtins
+            klass.hasOwnProperty('exportDOM')
+          ) {
             console.warn(
-              `${this.constructor.name} must implement "decorate" method`,
+              `${name} should implement "importDOM" if using a custom "exportDOM" method to ensure HTML serialization (important for copy & paste) works as expected`,
+            );
+          }
+          if (proto instanceof DecoratorNode) {
+            // eslint-disable-next-line no-prototype-builtins
+            if (!proto.hasOwnProperty('decorate')) {
+              console.warn(
+                `${this.constructor.name} must implement "decorate" method`,
+              );
+            }
+          }
+          if (
+            // eslint-disable-next-line no-prototype-builtins
+            !klass.hasOwnProperty('importJSON')
+          ) {
+            console.warn(
+              `${name} should implement "importJSON" method to ensure JSON and default HTML serialization works as expected`,
+            );
+          }
+          if (
+            // eslint-disable-next-line no-prototype-builtins
+            !proto.hasOwnProperty('exportJSON')
+          ) {
+            console.warn(
+              `${name} should implement "exportJSON" method to ensure JSON and default HTML serialization works as expected`,
             );
           }
         }
-        if (
-          // eslint-disable-next-line no-prototype-builtins
-          !klass.hasOwnProperty('importJSON')
-        ) {
-          console.warn(
-            `${name} should implement "importJSON" method to ensure JSON and default HTML serialization works as expected`,
-          );
-        }
-        if (
-          // eslint-disable-next-line no-prototype-builtins
-          !proto.hasOwnProperty('exportJSON')
-        ) {
-          console.warn(
-            `${name} should implement "exportJSON" method to ensure JSON and default HTML serialization works as expected`,
-          );
-        }
       }
+      // @ts-expect-error TODO Replace Class utility type with InstanceType
+      const type = klass.getType();
+      registeredNodes.set(type, {
+        klass,
+        transforms: new Set(),
+      });
     }
-    // @ts-expect-error TODO Replace Class utility type with InstanceType
-    const type = klass.getType();
-    registeredNodes.set(type, {
-      klass,
-      transforms: new Set(),
-    });
   }
 
   const editor = new LexicalEditor(
@@ -358,6 +387,7 @@ export function createEditor(
     registeredNodes,
     {
       disableEvents,
+      namespace,
       theme,
     },
     onError,
@@ -480,7 +510,7 @@ export class LexicalEditor {
     };
   }
 
-  registerDecoratorListener(listener: DecoratorListener): () => void {
+  registerDecoratorListener<T>(listener: DecoratorListener<T>): () => void {
     const listenerSetOrMap = this._listeners.decorator;
     listenerSetOrMap.add(listener);
     return () => {
@@ -553,7 +583,7 @@ export class LexicalEditor {
   }
 
   registerMutationListener(
-    klass: Class<LexicalNode>,
+    klass: Klass<LexicalNode>,
     listener: MutationListener,
   ): () => void {
     // @ts-expect-error TODO Replace Class utility type with InstanceType
@@ -574,11 +604,9 @@ export class LexicalEditor {
     };
   }
 
-  registerNodeTransform(
-    // There's no Flow-safe way to preserve the T in Transform<T>, but <T = LexicalNode> in the
-    // declaration below guarantees these are LexicalNodes.
-    klass: Class<LexicalNode>,
-    listener: Transform<LexicalNode>,
+  registerNodeTransform<T extends LexicalNode>(
+    klass: Klass<T>,
+    listener: Transform<T>,
   ): () => void {
     // @ts-expect-error TODO Replace Class utility type with InstanceType
     const type = klass.getType();
@@ -601,10 +629,10 @@ export class LexicalEditor {
     };
   }
 
-  hasNodes(nodes: Array<Class<LexicalNode>>): boolean {
+  hasNodes<T extends Klass<LexicalNode>>(nodes: Array<T>): boolean {
     for (let i = 0; i < nodes.length; i++) {
       const klass = nodes[i];
-      // @ts-expect-error TODO Replace Class utility type with InstanceType
+      // @ts-expect-error
       const type = klass.getType();
 
       if (!this._nodes.has(type)) {
@@ -619,8 +647,8 @@ export class LexicalEditor {
     return dispatchCommand(this, type, payload);
   }
 
-  getDecorators(): Record<NodeKey, unknown> {
-    return this._decorators;
+  getDecorators<T>(): Record<NodeKey, T> {
+    return this._decorators as Record<NodeKey, T>;
   }
 
   getRootElement(): null | HTMLElement {
@@ -780,11 +808,9 @@ export class LexicalEditor {
     triggerListeners('readonly', this, true, readOnly);
   }
 
-  toJSON(): {
-    editorState: EditorState;
-  } {
+  toJSON(): SerializedEditor {
     return {
-      editorState: this._editorState,
+      editorState: this._editorState.toJSON(),
     };
   }
 }

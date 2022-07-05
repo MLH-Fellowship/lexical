@@ -164,8 +164,8 @@ declare export class LexicalEditor {
   getElementByKey(key: NodeKey): null | HTMLElement;
   getEditorState(): EditorState;
   setEditorState(editorState: EditorState, options?: EditorSetOptions): void;
-  parseEditorState<SerializedNode>(
-    maybeStringifiedEditorState: string | SerializedEditorState<SerializedNode>,
+  parseEditorState(
+    maybeStringifiedEditorState: string | SerializedEditorState,
     updateFn?: () => void,
   ): EditorState;
   update(updateFn: () => void, options?: EditorUpdateOptions): boolean;
@@ -173,7 +173,7 @@ declare export class LexicalEditor {
   blur(): void;
   isReadOnly(): boolean;
   setReadOnly(readOnly: boolean): void;
-  toJSON(): SerializedEditor<>;
+  toJSON(): SerializedEditor;
 }
 type EditorUpdateOptions = {
   onUpdate?: () => void,
@@ -231,12 +231,18 @@ export type EditorThemeClasses = {
     h3?: EditorThemeClassName,
     h4?: EditorThemeClassName,
     h5?: EditorThemeClassName,
+    h6?: EditorThemeClassName,
+  },
+  embedBlock?: {
+    base?: EditorThemeClassName,
+    focus?: EditorThemeClassName,
   },
   // Handle other generic values
   [string]: EditorThemeClassName | {[string]: EditorThemeClassName},
 };
 export type EditorConfig = {
   theme: EditorThemeClasses,
+  namespace: string,
   disableEvents?: boolean,
 };
 export type CommandListenerPriority = 0 | 1 | 2 | 3 | 4;
@@ -249,6 +255,7 @@ export const COMMAND_PRIORITY_CRITICAL = 4;
 export type IntentionallyMarkedAsDirtyElement = boolean;
 declare export function createEditor(editorConfig?: {
   editorState?: EditorState,
+  namespace: string,
   theme?: EditorThemeClasses,
   parentEditor?: LexicalEditor,
   nodes?: $ReadOnlyArray<Class<LexicalNode>>,
@@ -272,7 +279,7 @@ export interface EditorState {
   ): void;
   isEmpty(): boolean;
   read<V>(callbackFn: () => V): V;
-  toJSON<SerializedNode>(): SerializedEditorState<SerializedNode>;
+  toJSON(): SerializedEditorState;
   clone(
     selection?: RangeSelection | NodeSelection | GridSelection | null,
   ): EditorState;
@@ -726,7 +733,7 @@ declare export function $isElementNode(
 
 declare export class DecoratorNode<X> extends LexicalNode {
   constructor(key?: NodeKey): void;
-  decorate(editor: LexicalEditor): X;
+  decorate(editor: LexicalEditor, config: EditorConfig): X;
   isIsolated(): boolean;
   isTopLevel(): boolean;
 }
@@ -803,7 +810,7 @@ declare export function $getDecoratorNode(
   focus: Point,
   isBackward: boolean,
 ): null | LexicalNode;
-
+declare export function generateRandomKey(): string;
 export type EventHandler = (event: Event, editor: LexicalEditor) => void;
 
 /**
@@ -874,10 +881,10 @@ export type SerializedGridCellNode = {
   ...
 };
 
-export interface SerializedEditorState<SerializedNode> {
-  root: SerializedRootNode<SerializedNode>;
+export interface SerializedEditorState {
+  root: SerializedRootNode;
 }
 
-export type SerializedEditor<SerializedNode> = {
-  editorState: SerializedEditorState<SerializedNode>,
+export type SerializedEditor = {
+  editorState: SerializedEditorState,
 };

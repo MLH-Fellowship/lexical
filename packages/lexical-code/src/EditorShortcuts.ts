@@ -7,60 +7,48 @@
  */
 
 // eslint-disable-next-line simple-import-sort/imports
-
 import {
-  $createCodeHighlightNode,
-  $isCodeHighlightNode,
-  CodeHighlightNode,
-  CodeNode,
-  getFirstCodeHighlightNodeOfLine,
-  getLastCodeHighlightNodeOfLine,
-} from '@lexical/code';
-import {mergeRegister} from '@lexical/utils';
-import {
+  $isLineBreakNode,
+  LexicalCommand,
+  LexicalEditor,
+  LexicalNode,
   $getNodeByKey,
   $getSelection,
-  $isLineBreakNode,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
   INDENT_CONTENT_COMMAND,
   KEY_ARROW_DOWN_COMMAND,
   KEY_ARROW_UP_COMMAND,
-  LexicalCommand,
-  LexicalEditor,
-  LexicalNode,
   MOVE_TO_END,
   MOVE_TO_START,
   OUTDENT_CONTENT_COMMAND,
   TextNode,
 } from 'lexical';
 
-function doIndent(node: CodeHighlightNode, type: LexicalCommand<void>) {
-  const text = node.getTextContent();
-  if (type === INDENT_CONTENT_COMMAND) {
-    // If the codeblock node doesn't start with whitespace, we don't want to
-    // naively prepend a '\t'; Prism will then mangle all of our nodes when
-    // it separates the whitespace from the first non-whitespace node. This
-    // will lead to selection bugs when indenting lines that previously
-    // didn't start with a whitespace character
-    if (text.length > 0 && /\s/.test(text[0])) {
-      node.setTextContent('\t' + text);
-    } else {
-      const indentNode = $createCodeHighlightNode('\t');
-      node.insertBefore(indentNode);
-    }
-  } else {
-    if (text.indexOf('\t') === 0) {
-      // Same as above - if we leave empty text nodes lying around, the resulting
-      // selection will be mangled
-      if (text.length === 1) {
-        node.remove();
-      } else {
-        node.setTextContent(text.substring(1));
-      }
-    }
-  }
-}
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-markup';
+import 'prismjs/components/prism-markdown';
+import 'prismjs/components/prism-c';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-objectivec';
+import 'prismjs/components/prism-sql';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-rust';
+import 'prismjs/components/prism-swift';
+
+import {mergeRegister} from '@lexical/utils';
+import {
+  $isCodeHighlightNode,
+  CodeHighlightNode,
+  $createCodeHighlightNode,
+} from './CodeHighlightNode';
+import {CodeNode} from './CodeNode';
+import {
+  getFirstCodeHighlightNodeOfLine,
+  getLastCodeHighlightNodeOfLine,
+  updateCodeGutter,
+} from './HighlighterHelper';
 
 function handleMultilineIndent(type: LexicalCommand<void>): boolean {
   const selection = $getSelection();
@@ -91,6 +79,33 @@ function handleMultilineIndent(type: LexicalCommand<void>): boolean {
   }
 
   return true;
+}
+
+function doIndent(node: CodeHighlightNode, type: LexicalCommand<void>) {
+  const text = node.getTextContent();
+  if (type === INDENT_CONTENT_COMMAND) {
+    // If the codeblock node doesn't start with whitespace, we don't want to
+    // naively prepend a '\t'; Prism will then mangle all of our nodes when
+    // it separates the whitespace from the first non-whitespace node. This
+    // will lead to selection bugs when indenting lines that previously
+    // didn't start with a whitespace character
+    if (text.length > 0 && /\s/.test(text[0])) {
+      node.setTextContent('\t' + text);
+    } else {
+      const indentNode = $createCodeHighlightNode('\t');
+      node.insertBefore(indentNode);
+    }
+  } else {
+    if (text.indexOf('\t') === 0) {
+      // Same as above - if we leave empty text nodes lying around, the resulting
+      // selection will be mangled
+      if (text.length === 1) {
+        node.remove();
+      } else {
+        node.setTextContent(text.substring(1));
+      }
+    }
+  }
 }
 
 function handleShiftLines(
@@ -366,29 +381,6 @@ function handleMoveTo(
 
   event.preventDefault();
   event.stopPropagation();
-}
-function updateCodeGutter(node: CodeNode, editor: LexicalEditor): void {
-  const codeElement = editor.getElementByKey(node.getKey());
-  if (codeElement === null) {
-    return;
-  }
-  const children = node.getChildren();
-  const childrenLength = children.length;
-  // @ts-ignore: internal field
-  if (childrenLength === codeElement.__cachedChildrenLength) {
-    // Avoid updating the attribute if the children length hasn't changed.
-    return;
-  }
-  // @ts-ignore:: internal field
-  codeElement.__cachedChildrenLength = childrenLength;
-  let gutter = '1';
-  let count = 1;
-  for (let i = 0; i < childrenLength; i++) {
-    if ($isLineBreakNode(children[i])) {
-      gutter += '\n' + ++count;
-    }
-  }
-  codeElement.setAttribute('data-gutter', gutter);
 }
 
 export function registerCodeIndent(editor: LexicalEditor): () => void {

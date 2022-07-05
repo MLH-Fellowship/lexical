@@ -67,6 +67,8 @@ describe('LexicalNodeHelpers tests', () => {
         return (
           <LexicalComposer
             initialConfig={{
+              editorState: $initialEditorState,
+              namespace: '',
               nodes:
                 plugin === 'PlainTextPlugin'
                   ? []
@@ -94,13 +96,11 @@ describe('LexicalNodeHelpers tests', () => {
             {plugin === 'PlainTextPlugin' ? (
               <PlainTextPlugin
                 contentEditable={<ContentEditable />}
-                initialEditorState={$initialEditorState}
                 placeholder=""
               />
             ) : (
               <RichTextPlugin
                 contentEditable={<ContentEditable />}
-                initialEditorState={$initialEditorState}
                 placeholder=""
               />
             )}
@@ -133,6 +133,8 @@ describe('LexicalNodeHelpers tests', () => {
         return (
           <LexicalComposer
             initialConfig={{
+              editorState: initialEditorStateJson,
+              namespace: '',
               nodes:
                 plugin === 'PlainTextPlugin'
                   ? []
@@ -160,13 +162,11 @@ describe('LexicalNodeHelpers tests', () => {
             {plugin === 'PlainTextPlugin' ? (
               <PlainTextPlugin
                 contentEditable={<ContentEditable />}
-                initialEditorState={initialEditorStateJson}
                 placeholder=""
               />
             ) : (
               <RichTextPlugin
                 contentEditable={<ContentEditable />}
-                initialEditorState={initialEditorStateJson}
                 placeholder=""
               />
             )}

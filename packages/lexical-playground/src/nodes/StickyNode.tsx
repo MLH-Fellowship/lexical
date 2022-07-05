@@ -12,6 +12,7 @@ import type {
   LexicalNode,
   NodeKey,
   SerializedLexicalNode,
+  Spread,
 } from 'lexical';
 
 import './StickyNode.css';
@@ -30,7 +31,6 @@ import {
   createEditor,
   DecoratorNode,
 } from 'lexical';
-import {Spread} from 'libdefs/globals';
 import * as React from 'react';
 import {useEffect, useRef} from 'react';
 import {createPortal} from 'react-dom';
@@ -265,6 +265,7 @@ function StickyComponent({
                 What's up?
               </Placeholder>
             }
+            // TODO Remove after it's inherited from the parent (LexicalComposer)
             initialEditorState={null}
           />
         </LexicalNestedComposer>
@@ -362,7 +363,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     writable.__color = writable.__color === 'pink' ? 'yellow' : 'pink';
   }
 
-  decorate(editor: LexicalEditor): JSX.Element {
+  decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
     return createPortal(
       <StickyComponent
         color={this.__color}

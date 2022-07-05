@@ -8,26 +8,17 @@
 
 // eslint-disable-next-line simple-import-sort/imports
 import {
-  $createLineBreakNode,
+  LexicalEditor,
+  LexicalNode,
   $createTextNode,
   $getNodeByKey,
   $getSelection,
-  $isLineBreakNode,
   $isRangeSelection,
   $isTextNode,
   TextNode,
-  LexicalEditor,
-  LexicalNode,
+  $isLineBreakNode,
+  $createLineBreakNode,
 } from 'lexical';
-
-import {
-  CodeNode,
-  $isCodeNode,
-  registerCodeIndent,
-  $createCodeHighlightNode,
-  $isCodeHighlightNode,
-  CodeHighlightNode,
-} from '@lexical/code';
 
 import * as Prism from 'prismjs';
 
@@ -44,35 +35,16 @@ import 'prismjs/components/prism-rust';
 import 'prismjs/components/prism-swift';
 
 import {mergeRegister} from '@lexical/utils';
+import {
+  $isCodeHighlightNode,
+  $createCodeHighlightNode,
+  CodeHighlightNode,
+} from './CodeHighlightNode';
+import {CodeNode, $isCodeNode} from './CodeNode';
+import {updateCodeGutter} from './HighlighterHelper';
 
 const DEFAULT_CODE_LANGUAGE = 'javascript';
 
-function updateCodeGutter(node: CodeNode, editor: LexicalEditor): void {
-  const codeElement = editor.getElementByKey(node.getKey());
-  if (codeElement === null) {
-    return;
-  }
-  const children = node.getChildren();
-  const childrenLength = children.length;
-  // @ts-ignore: internal field
-  if (childrenLength === codeElement.__cachedChildrenLength) {
-    // Avoid updating the attribute if the children length hasn't changed.
-    return;
-  }
-  // @ts-ignore:: internal field
-  codeElement.__cachedChildrenLength = childrenLength;
-  let gutter = '1';
-  let count = 1;
-  for (let i = 0; i < childrenLength; i++) {
-    if ($isLineBreakNode(children[i])) {
-      gutter += '\n' + ++count;
-    }
-  }
-  codeElement.setAttribute('data-gutter', gutter);
-}
-
-// Wrapping update function into selection retainer, that tries to keep cursor at the same
-// position as before.
 function updateAndRetainSelection(
   node: CodeNode,
   updateFn: () => boolean,
@@ -132,10 +104,10 @@ function getHighlightNodes(
   tokens: (string | Prism.Token)[],
 ): Array<LexicalNode> {
   const nodes: LexicalNode[] = [];
-
   tokens.forEach((token) => {
     if (typeof token === 'string') {
       const partials = token.split('\n');
+
       for (let i = 0; i < partials.length; i++) {
         const text = partials[i];
         if (text.length) {
@@ -162,6 +134,90 @@ function getHighlightNodes(
   });
 
   return nodes;
+}
+
+function codeNodeTransform(
+  node: CodeNode,
+  editor: LexicalEditor,
+  threshold?: number,
+) {
+  if (isHighlighting) {
+    return;
+  }
+  isHighlighting = true;
+  // When new code block inserted it might not have language selected
+  if (node.getLanguage() === undefined) {
+    node.setLanguage(DEFAULT_CODE_LANGUAGE);
+  }
+
+  // Using nested update call to pass `skipTransforms` since we don't want
+  // each individual codehighlight node to be transformed again as it's already
+  // in its final state
+
+  editor.update(
+    () => {
+      updateAndRetainSelection(node, () => {
+        const code = node.getTextContent();
+        const tokens = Prism.tokenize(
+          code,
+          Prism.languages[node.getLanguage() || ''] ||
+            Prism.languages[DEFAULT_CODE_LANGUAGE],
+        );
+        const highlightNodes = getHighlightNodes(tokens);
+        const diffRange = getDiffRange(node.getChildren(), highlightNodes);
+        const {from, to, nodesForReplacement} = diffRange;
+        if (from !== to || nodesForReplacement.length) {
+          if (code.length <= threshold) {
+            node.splice(from, to - from, nodesForReplacement);
+          } else {
+            const codeContent = code.split('\n');
+            node.clear();
+            for (let i = 0; i < codeContent.length; i++) {
+              node.append($createTextNode(codeContent[i]));
+              if (i !== codeContent.length - 1) {
+                node.append($createLineBreakNode());
+              }
+            }
+          }
+
+          return true;
+        }
+        return false;
+      });
+    },
+    {
+      onUpdate: () => {
+        isHighlighting = false;
+      },
+      skipTransforms: true,
+    },
+  );
+}
+
+// Using `skipTransforms` to prevent extra transforms since reformatting the code
+// will not affect code block content itself.
+
+// Using extra flag (`isHighlighting`) since both CodeNode and CodeHighlightNode
+// trasnforms might be called at the same time (e.g. new CodeHighlight node inserted) and
+// in both cases we'll rerun whole reformatting over CodeNode, which is redundant.
+// Especially when pasting code into CodeBlock.
+let isHighlighting = false;
+
+function textNodeTransform(
+  node: TextNode,
+  editor: LexicalEditor,
+  threshold?: number,
+): void {
+  // Since CodeNode has flat children structure we only need to check
+  // if node's parent is a code node and run highlighting if so
+  const parentNode = node.getParent();
+  if ($isCodeNode(parentNode)) {
+    codeNodeTransform(parentNode, editor, threshold);
+  } else if ($isCodeHighlightNode(node)) {
+    // When code block converted into paragraph or other element
+    // code highlight nodes converted back to normal text
+    node.replace($createTextNode(node.__text));
+  }
 }
 
 function isEqual(nodeA: LexicalNode, nodeB: LexicalNode): boolean {
@@ -231,82 +287,9 @@ function getDiffRange(
   };
 }
 
-// Using `skipTransforms` to prevent extra transforms since reformatting the code
-// will not affect code block content itself.
-
-// Using extra flag (`isHighlighting`) since both CodeNode and CodeHighlightNode
-// trasnforms might be called at the same time (e.g. new CodeHighlight node inserted) and
-// in both cases we'll rerun whole reformatting over CodeNode, which is redundant.
-// Especially when pasting code into CodeBlock.
-let isHighlighting = false;
-function codeNodeTransform(
-  node: CodeNode,
-  editor: LexicalEditor,
-  threshold?: number,
-) {
-  if (isHighlighting) {
-    return;
-  }
-  isHighlighting = true;
-  // When new code block inserted it might not have language selected
-  if (node.getLanguage() === undefined) {
-    node.setLanguage(DEFAULT_CODE_LANGUAGE);
-  }
-
-  // Using nested update call to pass `skipTransforms` since we don't want
-  // each individual codehighlight node to be transformed again as it's already
-  // in its final state
-  editor.update(
-    () => {
-      updateAndRetainSelection(node, () => {
-        const code = node.getTextContent();
-        const tokens = Prism.tokenize(
-          code,
-          Prism.languages[node.getLanguage() || ''] ||
-            Prism.languages[DEFAULT_CODE_LANGUAGE],
-        );
-        const highlightNodes = getHighlightNodes(tokens);
-        const diffRange = getDiffRange(node.getChildren(), highlightNodes);
-        const {from, to, nodesForReplacement} = diffRange;
-        if (
-          (from !== to || nodesForReplacement.length) &&
-          code.length <= threshold
-        ) {
-          node.splice(from, to - from, nodesForReplacement);
-          return true;
-        }
-        return false;
-      });
-    },
-    {
-      onUpdate: () => {
-        isHighlighting = false;
-      },
-      skipTransforms: true,
-    },
-  );
-}
-
-function textNodeTransform(
-  node: TextNode,
-  editor: LexicalEditor,
-  threshold?: number,
-): void {
-  // Since CodeNode has flat children structure we only need to check
-  // if node's parent is a code node and run highlighting if so
-  const parentNode = node.getParent();
-  if ($isCodeNode(parentNode)) {
-    codeNodeTransform(parentNode, editor, threshold);
-  } else if ($isCodeHighlightNode(node)) {
-    // When code block converted into paragraph or other element
-    // code highlight nodes converted back to normal text
-    node.replace($createTextNode(node.__text));
-  }
-}
-
 export function registerCodeHighlighting(
   editor: LexicalEditor,
-  threshold: number,
+  threshold?: number,
 ): () => void {
   if (!editor.hasNodes([CodeNode, CodeHighlightNode])) {
     throw new Error(
@@ -336,6 +319,5 @@ export function registerCodeHighlighting(
     editor.registerNodeTransform(CodeHighlightNode, (node) =>
       textNodeTransform(node, editor, threshold),
     ),
-    registerCodeIndent(editor),
   );
 }

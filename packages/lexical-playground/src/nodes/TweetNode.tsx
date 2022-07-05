@@ -10,9 +10,12 @@ import type {
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
+  EditorConfig,
   ElementFormatType,
+  LexicalEditor,
   LexicalNode,
   NodeKey,
+  Spread,
 } from 'lexical';
 
 import {BlockWithAlignableContents} from '@lexical/react/LexicalBlockWithAlignableContents';
@@ -20,7 +23,6 @@ import {
   DecoratorBlockNode,
   SerializedDecoratorBlockNode,
 } from '@lexical/react/LexicalDecoratorBlockNode';
-import {Spread} from 'libdefs/globals';
 import * as React from 'react';
 import {useCallback, useEffect, useRef, useState} from 'react';
 
@@ -30,6 +32,10 @@ const getHasScriptCached = () =>
   document.querySelector(`script[src="${WIDGET_SCRIPT_URL}"]`);
 
 type TweetComponentProps = Readonly<{
+  className: Readonly<{
+    base: string;
+    focus: string;
+  }>;
   format: ElementFormatType | null;
   loadingComponent?: JSX.Element | string;
   nodeKey: NodeKey;
@@ -45,6 +51,7 @@ function convertTweetElement(domNode: HTMLElement): null | DOMConversionOutput {
 }
 
 function TweetComponent({
+  className,
   format,
   loadingComponent,
   nodeKey,
@@ -96,7 +103,10 @@ function TweetComponent({
   }, [createTweet, onError, tweetID]);
 
   return (
-    <BlockWithAlignableContents format={format} nodeKey={nodeKey}>
+    <BlockWithAlignableContents
+      className={className}
+      format={format}
+      nodeKey={nodeKey}>
       {isLoading ? loadingComponent : null}
       <div
         style={{display: 'inline-block', width: '550px'}}
@@ -115,7 +125,7 @@ export type SerializedTweetNode = Spread<
   SerializedDecoratorBlockNode
 >;
 
-export class TweetNode extends DecoratorBlockNode<JSX.Element> {
+export class TweetNode extends DecoratorBlockNode {
   __id: string;
 
   static getType(): string {
@@ -170,9 +180,15 @@ export class TweetNode extends DecoratorBlockNode<JSX.Element> {
     return this.__id;
   }
 
-  decorate(): JSX.Element {
+  decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
+    const embedBlockTheme = config.theme.embedBlock || {};
+    const className = {
+      base: embedBlockTheme.base || '',
+      focus: embedBlockTheme.focus || '',
+    };
     return (
       <TweetComponent
+        className={className}
         format={this.__format}
         loadingComponent="Loading..."
         nodeKey={this.getKey()}

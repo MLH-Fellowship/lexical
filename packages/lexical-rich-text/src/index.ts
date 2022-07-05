@@ -17,11 +17,13 @@ import type {
   NodeKey,
   ParagraphNode,
   SerializedElementNode,
+  Spread,
   TextFormatType,
 } from 'lexical';
 
 import {
   $getHtmlContent,
+  $getLexicalContent,
   $insertDataTransferForRichText,
 } from '@lexical/clipboard';
 import {
@@ -35,8 +37,10 @@ import {
 } from '@lexical/utils';
 import {
   $createParagraphNode,
+  $getNearestNodeFromDOMNode,
   $getRoot,
   $getSelection,
+  $isDecoratorNode,
   $isGridSelection,
   $isNodeSelection,
   $isRangeSelection,
@@ -68,14 +72,18 @@ import {
   PASTE_COMMAND,
   REMOVE_TEXT_COMMAND,
 } from 'lexical';
-import {Spread} from 'libdefs/globals';
 import {CAN_USE_BEFORE_INPUT, IS_IOS, IS_SAFARI} from 'shared/environment';
 
-export type InitialEditorStateType = null | string | EditorState | (() => void);
+// TODO Remove in 0.4
+export type InitialEditorStateType =
+  | null
+  | string
+  | EditorState
+  | ((editor: LexicalEditor) => void);
 
 export type SerializedHeadingNode = Spread<
   {
-    tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5';
+    tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
     type: 'heading';
     version: 1;
   },
@@ -178,7 +186,7 @@ export function $isQuoteNode(
   return node instanceof QuoteNode;
 }
 
-export type HeadingTagType = 'h1' | 'h2' | 'h3' | 'h4' | 'h5';
+export type HeadingTagType = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
 export class HeadingNode extends ElementNode {
   __tag: HeadingTagType;
@@ -240,6 +248,10 @@ export class HeadingNode extends ElementNode {
         conversion: convertHeadingElement,
         priority: 0,
       }),
+      h6: (node: Node) => ({
+        conversion: convertHeadingElement,
+        priority: 0,
+      }),
     };
   }
 
@@ -291,7 +303,8 @@ function convertHeadingElement(domNode: Node): DOMConversionOutput {
     nodeName === 'h2' ||
     nodeName === 'h3' ||
     nodeName === 'h4' ||
-    nodeName === 'h5'
+    nodeName === 'h5' ||
+    nodeName === 'h6'
   ) {
     node = $createHeadingNode(nodeName);
   }
@@ -322,8 +335,7 @@ function initializeEditor(
   } else if (initialEditorState === undefined) {
     editor.update(() => {
       const root = $getRoot();
-      const firstChild = root.getFirstChild();
-      if (firstChild === null) {
+      if (root.isEmpty()) {
         const paragraph = $createParagraphNode();
         root.append(paragraph);
         const activeElement = document.activeElement;
@@ -347,7 +359,12 @@ function initializeEditor(
         break;
       }
       case 'function': {
-        editor.update(initialEditorState, updateOptions);
+        editor.update(() => {
+          const root = $getRoot();
+          if (root.isEmpty()) {
+            initialEditorState(editor);
+          }
+        }, updateOptions);
         break;
       }
     }
@@ -377,10 +394,14 @@ function onCopyForRichText(event: ClipboardEvent, editor: LexicalEditor): void {
   if (selection !== null) {
     const clipboardData = event.clipboardData;
     const htmlString = $getHtmlContent(editor);
+    const lexicalString = $getLexicalContent(editor);
 
     if (clipboardData != null) {
       if (htmlString !== null) {
         clipboardData.setData('text/html', htmlString);
+      }
+      if (lexicalString !== null) {
+        clipboardData.setData('application/x-lexical-editor', lexicalString);
       }
       const plainString = selection.getTextContent();
       clipboardData.setData('text/plain', plainString);
@@ -435,6 +456,11 @@ function handleIndentAndOutdent(
       indentOrOutdent(parentBlock);
     }
   }
+}
+
+function isTargetWithinDecorator(target: HTMLElement): boolean {
+  const node = $getNearestNodeFromDOMNode(target);
+  return $isDecoratorNode(node);
 }
 
 export function registerRichText(
@@ -664,6 +690,9 @@ export function registerRichText(
     editor.registerCommand<KeyboardEvent>(
       KEY_BACKSPACE_COMMAND,
       (event) => {
+        if (isTargetWithinDecorator(event.target as HTMLElement)) {
+          return false;
+        }
         const selection = $getSelection();
         if (!$isRangeSelection(selection)) {
           return false;
@@ -685,6 +714,9 @@ export function registerRichText(
     editor.registerCommand<KeyboardEvent>(
       KEY_DELETE_COMMAND,
       (event) => {
+        if (isTargetWithinDecorator(event.target as HTMLElement)) {
+          return false;
+        }
         const selection = $getSelection();
         if (!$isRangeSelection(selection)) {
           return false;

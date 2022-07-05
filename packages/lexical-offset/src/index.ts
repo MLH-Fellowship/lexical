@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- *
  */
 
 import type {
@@ -388,23 +387,20 @@ function $searchForNodeWithOffset(
   return null;
 }
 
-function $createInternalOffsetNode<
-  TChild extends OffsetNode,
-  TParent extends OffsetElementNode = OffsetElementNode,
->(
-  child: null | TChild,
+function $createInternalOffsetNode(
+  child: null | OffsetNode,
   type: 'element' | 'text' | 'inline',
   start: number,
   end: number,
   key: NodeKey,
-  parent: null | TParent,
+  parent: null | OffsetElementNode,
 ): {
-  child: null | TChild;
+  child: null | OffsetNode;
   type: 'element' | 'text' | 'inline';
   start: number;
   end: number;
   key: NodeKey;
-  parent: null | TParent;
+  parent: null | OffsetElementNode;
   next: null;
   prev: null;
 } {
@@ -460,8 +456,8 @@ function $createOffsetNode(
       state.offset += blockOffsetSize;
     }
 
-    const offsetNode = $createInternalOffsetNode<OffsetElementNode>(
-      child as OffsetElementNode,
+    const offsetNode = $createInternalOffsetNode(
+      child,
       'element',
       start,
       start,
@@ -485,15 +481,18 @@ function $createOffsetNode(
   const length = isText ? node.__text.length : 1;
   const end = (state.offset += length);
 
-  const offsetNode = $createInternalOffsetNode<
-    OffsetTextNode | OffsetInlineNode
-  >(null, isText ? 'text' : 'inline', start, end, key, parent) as
-    | OffsetTextNode
-    | OffsetInlineNode;
+  const offsetNode = $createInternalOffsetNode(
+    null,
+    isText ? 'text' : 'inline',
+    start,
+    end,
+    key,
+    parent,
+  );
 
-  offsetMap.set(key, offsetNode);
+  offsetMap.set(key, offsetNode as OffsetNode);
 
-  return offsetNode;
+  return offsetNode as OffsetNode;
 }
 
 function $createOffsetChild(

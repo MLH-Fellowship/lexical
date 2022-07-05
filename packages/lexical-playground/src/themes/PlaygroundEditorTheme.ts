@@ -45,6 +45,10 @@ const theme: EditorThemeClasses = {
     url: 'PlaygroundEditorTheme__tokenOperator',
     variable: 'PlaygroundEditorTheme__tokenVariable',
   },
+  embedBlock: {
+    base: 'PlaygroundEditorTheme__embedBlock',
+    focus: 'PlaygroundEditorTheme__embedBlockFocus',
+  },
   hashtag: 'PlaygroundEditorTheme__hashtag',
   heading: {
     h1: 'PlaygroundEditorTheme__h1',
@@ -52,6 +56,7 @@ const theme: EditorThemeClasses = {
     h3: 'PlaygroundEditorTheme__h3',
     h4: 'PlaygroundEditorTheme__h4',
     h5: 'PlaygroundEditorTheme__h5',
+    h6: 'PlaygroundEditorTheme__h6',
   },
   image: 'editor-image',
   link: 'PlaygroundEditorTheme__link',

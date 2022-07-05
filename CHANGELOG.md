@@ -1,3 +1,37 @@
+## 0.3.5 (June 16, 2022)
+
+- Fix bad warnOnlyOnce minification (#2448)
+- add missing flow type (#2447)
+
+## 0.3.4 (June 16, 2022)
+- Customizable DecoratorBlockNode via theme (#2387)
+- initializeEditorState on LexicalComposer (#2425)
+- Revert "Prevent dispatching redundant can undo/redo commands (#2394)" (#2440)
+- Improve `Spread` type (#2434)
+- Improve text mutations around selection format changes (#2433)
+- Remove redundant newlines (#2431)
+- fix: add styles on copy (#2427)
+- Fix exposed private methods (#2429)
+- Fix backspace bug with non-RangeSelection (#2416)
+- Fix Android backspace bug (#2412)
+- Fix orphan list item clipboard bug (#2407)
+- Remove default json and node-type from DOM output. (#2404)
+- Simplify clickable links checks (#2395)
+- Prevent dispatching redundant can undo/redo commands (#2394)
+- Editor instance toJSON should call toJSON method on editor state (#2390)
+
+## 0.3.3 (June 9, 2022)
+
+- Add stringified LexicalNodes to clipboard for lossless Lexical <-> Lexical copy and paste. (#2370)
+- Fix bad target issue for backspace/delete (#2375)
+- Improve nested editor propagation (#2367)
+- Fix scrolling issues due to browser rounding bugs (#2350)
+- Code cleanup, type definition and docs improvements
+
+Playground
+- Autocomplete v2 (#2343)
+- Add collaboration support for commenting (#2376)
+
 ## 0.3.2 (June 6, 2022)
 
 - added typing for ListItemNode.setChecked, export ListNodeTagType (#2335) 
