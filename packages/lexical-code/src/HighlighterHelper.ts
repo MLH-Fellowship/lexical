@@ -7,9 +7,9 @@
  */
 
 // eslint-disable-next-line simple-import-sort/imports
-import {LexicalNode, LexicalEditor} from 'lexical';
+import {LexicalNode, LexicalEditor, $isLineBreakNode} from 'lexical';
 import {CodeHighlightNode, $isCodeHighlightNode, CodeNode} from '@lexical/code';
-import {$isCodeLineNode} from './CodeLineNode';
+// import {$isCodeLineNode} from './CodeLineNode';
 
 export function getFirstCodeHighlightNodeOfLine(
   anchor: LexicalNode,
@@ -22,7 +22,7 @@ export function getFirstCodeHighlightNodeOfLine(
     if ($isCodeHighlightNode(node)) {
       currentNode = node;
     }
-    if ($isCodeLineNode(node)) {
+    if ($isLineBreakNode(node)) {
       break;
     }
   }
@@ -41,7 +41,7 @@ export function getLastCodeHighlightNodeOfLine(
     if ($isCodeHighlightNode(node)) {
       currentNode = node;
     }
-    if ($isCodeLineNode(node)) {
+    if ($isLineBreakNode(node)) {
       break;
     }
   }
@@ -61,12 +61,13 @@ export function updateCodeGutter(node: CodeNode, editor: LexicalEditor): void {
     // Avoid updating the attribute if the children length hasn't changed.
     return;
   }
+
   // @ts-ignore:: internal field
   codeElement.__cachedChildrenLength = childrenLength;
   let gutter = '1';
   let count = 1;
   for (let i = 0; i < childrenLength; i++) {
-    if ($isCodeLineNode(children[i])) {
+    if ($isLineBreakNode(children[i])) {
       gutter += '\n' + ++count;
     }
   }

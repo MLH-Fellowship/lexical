@@ -43,8 +43,8 @@ import {
 import {CodeNode, $isCodeNode} from './CodeNode';
 import {updateCodeGutter} from './HighlighterHelper';
 import {
-  $createCodeLineNode,
-  $isCodeLineNode,
+  // $createCodeLineNode,
+  // $isCodeLineNode,
   CodeLineNode,
 } from './CodeLineNode';
 
@@ -181,7 +181,7 @@ function codeNodeTransform(
             for (let i = 0; i < codeContent.length; i++) {
               node.append($createTextNode(codeContent[i]));
               if (i !== codeContent.length - 1) {
-                node.append($createCodeLineNode());
+                node.append($createLineBreakNode());
               }
             }
           }
@@ -253,7 +253,7 @@ function isEqual(nodeA: LexicalNode, nodeB: LexicalNode): boolean {
     );
   }
 
-  if ($isCodeLineNode(nodeA) && $isCodeLineNode(nodeB)) {
+  if ($isLineBreakNode(nodeA) && $isLineBreakNode(nodeB)) {
     return true;
   }
 
