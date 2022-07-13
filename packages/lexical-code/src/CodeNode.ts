@@ -35,7 +35,6 @@ import 'prismjs/components/prism-swift';
 
 import {addClassNamesToElement} from '@lexical/utils';
 import {
-  $createCodeLineNode,
   $createParagraphNode,
   $getSelection,
   $isRangeSelection,
@@ -43,6 +42,7 @@ import {
 } from 'lexical';
 import {CodeHighlightNode, $createCodeHighlightNode} from './CodeHighlightNode';
 import {getFirstCodeHighlightNodeOfLine} from './HighlighterHelper';
+import {$createCodeLineNode} from './CodeLineNode';
 
 type SerializedCodeNode = Spread<
   {
