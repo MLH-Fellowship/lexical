@@ -374,7 +374,7 @@ function CommentsComposer({
 
   const onChange = useOnChange(setContent, setCanSubmit);
 
-  const submitComment = () => {
+  const submitComment = useCallback(() => {
     if (canSubmit) {
       submitAddComment(createComment(content, author), false, thread);
       const editor = editorRef.current;
@@ -382,7 +382,26 @@ function CommentsComposer({
         editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
       }
     }
-  };
+  }, [author, canSubmit, content, submitAddComment, thread]);
+
+  useEffect(() => {
+    const editor = editorRef.current;
+    const listener = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && event.metaKey) {
+        submitComment();
+      }
+    };
+
+    if (editor) {
+      window.addEventListener('keydown', listener);
+    }
+
+    return () => {
+      if (editor) {
+        window.removeEventListener('keydown', listener);
+      }
+    };
+  }, [submitComment]);
 
   return (
     <>
