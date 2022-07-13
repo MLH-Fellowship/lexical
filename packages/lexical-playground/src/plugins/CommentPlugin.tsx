@@ -384,6 +384,7 @@ function CommentsComposer({
     }
   }, [author, canSubmit, content, submitAddComment, thread]);
 
+  // Submit comments and replies with CMD + Enter
   useEffect(() => {
     const editor = editorRef.current;
     const listener = (event: KeyboardEvent) => {
@@ -738,6 +739,9 @@ export default function CommentPlugin({
       const provider = providerFactory('comments', yjsDocMap);
       return commentStore.registerCollaboration(provider);
     }
+
+    // Auto-open comments box when comment is added
+    setShowComments(true);
   }, [commentStore, providerFactory, yjsDocMap]);
 
   const cancelAddComment = useCallback(() => {
