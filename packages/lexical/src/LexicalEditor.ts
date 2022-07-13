@@ -12,7 +12,7 @@ import type {DOMConversion, LexicalNode, NodeKey} from './LexicalNode';
 import getDOMSelection from 'shared/getDOMSelection';
 import invariant from 'shared/invariant';
 
-import {$getRoot, $getSelection, TextNode} from '.';
+import {$getRoot, $getSelection, CodeLineNode, TextNode} from '.';
 import {FULL_RECONCILE, NO_DIRTY_NODES} from './LexicalConstants';
 import {createEmptyEditorState} from './LexicalEditorState';
 import {addRootElementEvents, removeRootElementEvents} from './LexicalEvents';
@@ -68,6 +68,7 @@ export type EditorFocusOptions = {
 export type EditorThemeClasses = {
   characterLimit?: EditorThemeClassName;
   code?: EditorThemeClassName;
+  codeLine?: EditorThemeClassName;
   codeHighlight?: Record<string, EditorThemeClassName>;
   hashtag?: EditorThemeClassName;
   heading?: {
@@ -330,6 +331,7 @@ export function createEditor(editorConfig?: {
     RootNode,
     TextNode,
     LineBreakNode,
+    CodeLineNode,
     ParagraphNode,
     ...(config.nodes || []),
   ];

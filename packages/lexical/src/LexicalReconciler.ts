@@ -20,9 +20,9 @@ import type {ElementNode} from './nodes/LexicalElementNode';
 import invariant from 'shared/invariant';
 
 import {
+  $isCodeLineNode,
   $isDecoratorNode,
   $isElementNode,
-  $isLineBreakNode,
   $isRootNode,
   $isTextNode,
 } from '.';
@@ -284,7 +284,7 @@ function isLastChildLineBreakOrDecorator(
 ): boolean {
   const childKey = children[children.length - 1];
   const node = nodeMap.get(childKey);
-  return $isLineBreakNode(node) || $isDecoratorNode(node);
+  return $isCodeLineNode(node) || $isDecoratorNode(node);
 }
 
 // If we end an element with a LinkBreakNode, then we need to add an additonal <br>
