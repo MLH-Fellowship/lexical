@@ -102,6 +102,11 @@ pre {
   border-bottom-right-radius: 10px;
 }
 
+.clipboard-view-output {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
 pre::-webkit-scrollbar {
   background: transparent;
   width: 10px;
