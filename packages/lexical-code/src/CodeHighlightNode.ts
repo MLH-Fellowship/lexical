@@ -7,7 +7,6 @@
  */
 
 // eslint-disable-next-line simple-import-sort/imports
-
 import type {
   EditorConfig,
   EditorThemeClasses,
