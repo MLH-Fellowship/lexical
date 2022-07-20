@@ -23,7 +23,6 @@ import {
 } from 'lexical';
 import {useMemo} from 'react';
 import * as React from 'react';
-import {Klass} from 'shared/types';
 import useLayoutEffect from 'shared/useLayoutEffect';
 
 const HISTORY_MERGE_OPTIONS = {tag: 'history-merge'};
