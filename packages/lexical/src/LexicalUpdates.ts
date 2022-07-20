@@ -899,7 +899,7 @@ export function updateEditor(
   updateFn: () => void,
   options?: EditorUpdateOptions,
 ): void {
-  if (editor._updating) {
+  if (editor._updating && options) {
     editor._updates.push([updateFn, options]);
   } else {
     beginUpdate(editor, updateFn, options);
