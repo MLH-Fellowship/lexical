@@ -12,7 +12,7 @@ import type {DOMConversion, LexicalNode, NodeKey} from './LexicalNode';
 import getDOMSelection from 'shared/getDOMSelection';
 import invariant from 'shared/invariant';
 
-import {$getRoot, $getSelection, CodeLineNode, TextNode} from '.';
+import {$getRoot, $getSelection, TextNode} from '.';
 import {FULL_RECONCILE, NO_DIRTY_NODES} from './LexicalConstants';
 import {createEmptyEditorState} from './LexicalEditorState';
 import {addRootElementEvents, removeRootElementEvents} from './LexicalEvents';
@@ -331,7 +331,6 @@ export function createEditor(editorConfig?: {
     RootNode,
     TextNode,
     LineBreakNode,
-    CodeLineNode,
     ParagraphNode,
     ...(config.nodes || []),
   ];

@@ -17,16 +17,16 @@ import getDOMSelection from 'shared/getDOMSelection';
 import invariant from 'shared/invariant';
 
 import {
-  $createCodeLineNode,
+  $createLineBreakNode,
   $createParagraphNode,
   $createTextNode,
-  $isCodeLineNode,
   $isDecoratorNode,
   $isElementNode,
   $isGridCellNode,
   $isGridNode,
   $isGridRowNode,
   $isLeafNode,
+  $isLineBreakNode,
   $isRootNode,
   $isTextNode,
   DecoratorNode,
@@ -640,7 +640,7 @@ export class RangeSelection implements BaseSelection {
           }
           textContent += text;
         } else if (
-          ($isDecoratorNode(node) || $isCodeLineNode(node)) &&
+          ($isDecoratorNode(node) || $isLineBreakNode(node)) &&
           (node !== lastNode || !this.isCollapsed())
         ) {
           textContent += node.getTextContent();
@@ -715,7 +715,7 @@ export class RangeSelection implements BaseSelection {
           nodes.push($createTextNode(part));
         }
         if (i !== length - 1) {
-          nodes.push($createCodeLineNode());
+          nodes.push($createLineBreakNode());
         }
       }
       this.insertNodes(nodes);
@@ -1562,7 +1562,7 @@ export class RangeSelection implements BaseSelection {
   }
 
   insertLineBreak(selectStart?: boolean): void {
-    const lineBreakNode = $createCodeLineNode();
+    const lineBreakNode = $createLineBreakNode();
     const anchor = this.anchor;
     if (anchor.type === 'element') {
       const element = anchor.getNode();

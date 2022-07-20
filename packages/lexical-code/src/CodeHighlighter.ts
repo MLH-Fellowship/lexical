@@ -154,6 +154,7 @@ function codeNodeTransform(
   // Using nested update call to pass `skipTransforms` since we don't want
   // each individual codehighlight node to be transformed again as it's already
   // in its final state
+
   editor.update(
     () => {
       updateAndRetainSelection(node, () => {

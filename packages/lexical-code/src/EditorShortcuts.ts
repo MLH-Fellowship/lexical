@@ -24,7 +24,6 @@ import {mergeRegister} from '@lexical/utils';
 import {
   $getNodeByKey,
   $getSelection,
-  $isCodeLineNode,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
   INDENT_CONTENT_COMMAND,
@@ -44,6 +43,7 @@ import {
   $isCodeHighlightNode,
   CodeHighlightNode,
 } from './CodeHighlightNode';
+import {$isCodeLineNode} from './CodeLineNode';
 import {CodeNode} from './CodeNode';
 import {
   getFirstCodeHighlightNodeOfLine,
