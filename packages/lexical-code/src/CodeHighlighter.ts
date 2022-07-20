@@ -8,16 +8,16 @@
 
 // eslint-disable-next-line simple-import-sort/imports
 import {
-  $createLineBreakNode,
   LexicalEditor,
   LexicalNode,
   $createTextNode,
   $getNodeByKey,
   $getSelection,
-  $isLineBreakNode,
   $isRangeSelection,
   $isTextNode,
   TextNode,
+  $isLineBreakNode,
+  $createLineBreakNode,
 } from 'lexical';
 
 import * as Prism from 'prismjs';

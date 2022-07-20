@@ -7,7 +7,6 @@
  */
 
 // eslint-disable-next-line simple-import-sort/imports
-import type {LexicalCommand, LexicalEditor, LexicalNode} from 'lexical';
 
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
@@ -31,15 +30,19 @@ import {
   INDENT_CONTENT_COMMAND,
   KEY_ARROW_DOWN_COMMAND,
   KEY_ARROW_UP_COMMAND,
+  LexicalCommand,
+  LexicalEditor,
+  LexicalNode,
   MOVE_TO_END,
   MOVE_TO_START,
   OUTDENT_CONTENT_COMMAND,
   TextNode,
 } from 'lexical';
+
 import {
+  $createCodeHighlightNode,
   $isCodeHighlightNode,
   CodeHighlightNode,
-  $createCodeHighlightNode,
 } from './CodeHighlightNode';
 import {CodeNode} from './CodeNode';
 import {
