@@ -119,7 +119,6 @@ function getHighlightNodes(
       }
     } else {
       const {content} = token;
-
       if (typeof content === 'string') {
         nodes.push($createCodeHighlightNode(content, token.type));
       } else if (
