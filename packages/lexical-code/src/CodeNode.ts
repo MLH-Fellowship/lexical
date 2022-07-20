@@ -42,6 +42,7 @@ import {
 } from 'lexical';
 import {CodeHighlightNode, $createCodeHighlightNode} from './CodeHighlightNode';
 import {getFirstCodeHighlightNodeOfLine} from './HighlighterHelper';
+import {$createCodeLineNode} from './CodeLineNode';
 
 type SerializedCodeNode = Spread<
   {
