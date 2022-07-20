@@ -83,8 +83,7 @@ declare function registerCodeHighlighting(
   threshold: number,
 ): () => void;
 declare function registerCodeIndent(editor: LexicalEditor): () => void;
-<<<<<<< HEAD
-=======
+
 declare function getStartOfCodeInLine(
   editor: LexicalEditor,
   node: TextNode | null,
@@ -95,7 +94,6 @@ declare function getEndOfCodeInLine(
   node: TextNode | null,
   offset: number,
 ): () => void;
->>>>>>> bc1163d3 (update to highlighter code split)
 
 type SerializedCodeNode = Spread<
   {

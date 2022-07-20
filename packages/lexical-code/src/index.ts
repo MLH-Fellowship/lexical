@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-=======
->>>>>>> bc1163d3 (update to highlighter code split)
 import {registerCodeHighlighting} from './CodeHighlighter';
 import {
   $createCodeHighlightNode,
@@ -24,10 +21,7 @@ import {registerCodeIndent} from './EditorShortcuts';
 import {
   getFirstCodeHighlightNodeOfLine,
   getLastCodeHighlightNodeOfLine,
-<<<<<<< HEAD
   updateCodeGutter,
-=======
->>>>>>> bc1163d3 (update to highlighter code split)
 } from './HighlighterHelper';
 
 export {
