@@ -61,6 +61,7 @@ export function updateCodeGutter(node: CodeNode, editor: LexicalEditor): void {
     // Avoid updating the attribute if the children length hasn't changed.
     return;
   }
+
   // @ts-ignore:: internal field
   codeElement.__cachedChildrenLength = childrenLength;
   let gutter = '1';
