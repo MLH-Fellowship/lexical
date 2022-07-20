@@ -7,22 +7,13 @@
  */
 
 // eslint-disable-next-line simple-import-sort/imports
-<<<<<<< HEAD
-import type {
-=======
 
-import {
-  addClassNamesToElement,
-  removeClassNamesFromElement,
-} from '@lexical/utils';
-import {
->>>>>>> bc1163d3 (update to highlighter code split)
+import type {
   EditorConfig,
   EditorThemeClasses,
   LexicalNode,
   NodeKey,
   SerializedTextNode,
-<<<<<<< HEAD
   Spread,
 } from 'lexical';
 
@@ -31,11 +22,6 @@ import {
   removeClassNamesFromElement,
 } from '@lexical/utils';
 import {TextNode} from 'lexical';
-=======
-  TextNode,
-} from 'lexical';
-import {Spread} from 'libdefs/globals';
->>>>>>> bc1163d3 (update to highlighter code split)
 
 type SerializedCodeHighlightNode = Spread<
   {
@@ -45,8 +31,6 @@ type SerializedCodeHighlightNode = Spread<
   },
   SerializedTextNode
 >;
-<<<<<<< HEAD
-=======
 
 function getHighlightThemeClass(
   theme: EditorThemeClasses,
@@ -59,7 +43,6 @@ function getHighlightThemeClass(
     theme.codeHighlight[highlightType]
   );
 }
->>>>>>> bc1163d3 (update to highlighter code split)
 export class CodeHighlightNode extends TextNode {
   __highlightType: string | null | undefined;
 
@@ -123,14 +106,10 @@ export class CodeHighlightNode extends TextNode {
   static importJSON(
     serializedNode: SerializedCodeHighlightNode,
   ): CodeHighlightNode {
-<<<<<<< HEAD
     const node = $createCodeHighlightNode(
       serializedNode.text,
       serializedNode.highlightType,
     );
-=======
-    const node = $createCodeHighlightNode(serializedNode.highlightType);
->>>>>>> bc1163d3 (update to highlighter code split)
     node.setFormat(serializedNode.format);
     node.setDetail(serializedNode.detail);
     node.setMode(serializedNode.mode);
@@ -143,10 +122,7 @@ export class CodeHighlightNode extends TextNode {
       ...super.exportJSON(),
       highlightType: this.getHighlightType(),
       type: 'code-highlight',
-<<<<<<< HEAD
       version: 1,
-=======
->>>>>>> bc1163d3 (update to highlighter code split)
     };
   }
 
@@ -156,21 +132,6 @@ export class CodeHighlightNode extends TextNode {
   }
 }
 
-<<<<<<< HEAD
-function getHighlightThemeClass(
-  theme: EditorThemeClasses,
-  highlightType: string | undefined,
-): string | undefined {
-  return (
-    highlightType &&
-    theme &&
-    theme.codeHighlight &&
-    theme.codeHighlight[highlightType]
-  );
-}
-
-=======
->>>>>>> bc1163d3 (update to highlighter code split)
 export function $createCodeHighlightNode(
   text: string,
   highlightType?: string,
