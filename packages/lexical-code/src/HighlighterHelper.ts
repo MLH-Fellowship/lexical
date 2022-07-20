@@ -7,7 +7,7 @@
  */
 
 // eslint-disable-next-line simple-import-sort/imports
-import {LexicalNode, LexicalEditor, $isLineBreakNode} from 'lexical';
+import {$isLineBreakNode, LexicalEditor, LexicalNode} from 'lexical';
 import {CodeHighlightNode, $isCodeHighlightNode, CodeNode} from '@lexical/code';
 // import {$isCodeLineNode} from './CodeLineNode';
 
