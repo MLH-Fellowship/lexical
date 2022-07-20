@@ -8,16 +8,16 @@
 
 // eslint-disable-next-line simple-import-sort/imports
 import {
+  $createLineBreakNode,
   LexicalEditor,
   LexicalNode,
   $createTextNode,
   $getNodeByKey,
   $getSelection,
+  $isLineBreakNode,
   $isRangeSelection,
   $isTextNode,
   TextNode,
-  $isLineBreakNode,
-  $createLineBreakNode,
 } from 'lexical';
 
 import * as Prism from 'prismjs';
@@ -42,7 +42,6 @@ import {
 } from './CodeHighlightNode';
 import {CodeNode, $isCodeNode} from './CodeNode';
 import {updateCodeGutter} from './HighlighterHelper';
-import {CodeLineNode} from './CodeLineNode';
 
 const DEFAULT_CODE_LANGUAGE = 'javascript';
 
@@ -154,7 +153,6 @@ function codeNodeTransform(
   // Using nested update call to pass `skipTransforms` since we don't want
   // each individual codehighlight node to be transformed again as it's already
   // in its final state
-
   editor.update(
     () => {
       updateAndRetainSelection(node, () => {
@@ -206,23 +204,6 @@ let isHighlighting = false;
 
 function textNodeTransform(
   node: TextNode,
-  editor: LexicalEditor,
-  threshold?: number,
-): void {
-  // Since CodeNode has flat children structure we only need to check
-  // if node's parent is a code node and run highlighting if so
-  const parentNode = node.getParent();
-  if ($isCodeNode(parentNode)) {
-    codeNodeTransform(parentNode, editor, threshold);
-  } else if ($isCodeHighlightNode(node)) {
-    // When code block converted into paragraph or other element
-    // code highlight nodes converted back to normal text
-    node.replace($createTextNode(node.__text));
-  }
-}
-
-function codeLineNodeTransform(
-  node: CodeLineNode,
   editor: LexicalEditor,
   threshold?: number,
 ): void {
@@ -330,9 +311,6 @@ export function registerCodeHighlighting(
     }),
     editor.registerNodeTransform(CodeNode, (node) =>
       codeNodeTransform(node, editor, threshold),
-    ),
-    editor.registerNodeTransform(CodeLineNode, (node) =>
-      codeLineNodeTransform(node, editor, threshold),
     ),
     editor.registerNodeTransform(TextNode, (node) =>
       textNodeTransform(node, editor, threshold),

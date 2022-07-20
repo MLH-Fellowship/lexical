@@ -30,18 +30,6 @@ type SerializedCodeHighlightNode = Spread<
   },
   SerializedTextNode
 >;
-
-function getHighlightThemeClass(
-  theme: EditorThemeClasses,
-  highlightType: string | undefined,
-): string | undefined {
-  return (
-    highlightType &&
-    theme &&
-    theme.codeHighlight &&
-    theme.codeHighlight[highlightType]
-  );
-}
 export class CodeHighlightNode extends TextNode {
   __highlightType: string | null | undefined;
 
@@ -129,6 +117,18 @@ export class CodeHighlightNode extends TextNode {
   setFormat(format: number): this {
     return this;
   }
+}
+
+function getHighlightThemeClass(
+  theme: EditorThemeClasses,
+  highlightType: string | undefined,
+): string | undefined {
+  return (
+    highlightType &&
+    theme &&
+    theme.codeHighlight &&
+    theme.codeHighlight[highlightType]
+  );
 }
 
 export function $createCodeHighlightNode(

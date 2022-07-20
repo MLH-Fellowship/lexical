@@ -11,11 +11,6 @@ import {
   $isCodeHighlightNode,
   CodeHighlightNode,
 } from './CodeHighlightNode';
-import {
-  $createCodeLineNode,
-  $isCodeLineNode,
-  CodeLineNode,
-} from './CodeLineNode';
 import {$createCodeNode, $isCodeNode, CodeNode} from './CodeNode';
 import {registerCodeIndent} from './EditorShortcuts';
 import {
@@ -26,13 +21,10 @@ import {
 
 export {
   $createCodeHighlightNode,
-  $createCodeLineNode,
   $createCodeNode,
   $isCodeHighlightNode,
-  $isCodeLineNode,
   $isCodeNode,
   CodeHighlightNode,
-  CodeLineNode,
   CodeNode,
   getFirstCodeHighlightNodeOfLine,
   getLastCodeHighlightNodeOfLine,

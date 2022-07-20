@@ -7,6 +7,7 @@
  */
 
 // eslint-disable-next-line simple-import-sort/imports
+import type {LexicalCommand, LexicalEditor, LexicalNode} from 'lexical';
 
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
@@ -24,26 +25,22 @@ import {mergeRegister} from '@lexical/utils';
 import {
   $getNodeByKey,
   $getSelection,
+  $isLineBreakNode,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
   INDENT_CONTENT_COMMAND,
   KEY_ARROW_DOWN_COMMAND,
   KEY_ARROW_UP_COMMAND,
-  LexicalCommand,
-  LexicalEditor,
-  LexicalNode,
   MOVE_TO_END,
   MOVE_TO_START,
   OUTDENT_CONTENT_COMMAND,
   TextNode,
 } from 'lexical';
-
 import {
-  $createCodeHighlightNode,
   $isCodeHighlightNode,
   CodeHighlightNode,
+  $createCodeHighlightNode,
 } from './CodeHighlightNode';
-import {$isCodeLineNode} from './CodeLineNode';
 import {CodeNode} from './CodeNode';
 import {
   getFirstCodeHighlightNodeOfLine,
@@ -62,7 +59,7 @@ function handleMultilineIndent(type: LexicalCommand<void>): boolean {
   const nodes = selection.getNodes();
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
-    if (!$isCodeHighlightNode(node) && !$isCodeLineNode(node)) {
+    if (!$isCodeHighlightNode(node) && !$isLineBreakNode(node)) {
       return false;
     }
   }
@@ -74,7 +71,7 @@ function handleMultilineIndent(type: LexicalCommand<void>): boolean {
 
   for (let i = 1; i < nodes.length; i++) {
     const node = nodes[i];
-    if ($isCodeLineNode(nodes[i - 1]) && $isCodeHighlightNode(node)) {
+    if ($isLineBreakNode(nodes[i - 1]) && $isCodeHighlightNode(node)) {
       doIndent(node, type);
     }
   }
@@ -173,7 +170,7 @@ function handleShiftLines(
   const range = start.getNodesBetween(end);
   for (let i = 0; i < range.length; i++) {
     const node = range[i];
-    if (!$isCodeHighlightNode(node) && !$isCodeLineNode(node)) {
+    if (!$isCodeHighlightNode(node) && !$isLineBreakNode(node)) {
       return false;
     }
   }
@@ -187,7 +184,7 @@ function handleShiftLines(
   const linebreak = arrowIsUp
     ? start.getPreviousSibling()
     : end.getNextSibling();
-  if (!$isCodeLineNode(linebreak)) {
+  if (!$isLineBreakNode(linebreak)) {
     return true;
   }
   const sibling = arrowIsUp
@@ -271,7 +268,7 @@ function getStartOfCodeInLine(anchor: LexicalNode): {
         currentNodeOffset = offset;
       }
     }
-    if ($isCodeLineNode(node)) {
+    if ($isLineBreakNode(node)) {
       break;
     }
   }
@@ -289,7 +286,7 @@ function getStartOfCodeInLine(anchor: LexicalNode): {
           break;
         }
       }
-      if ($isCodeLineNode(node)) {
+      if ($isLineBreakNode(node)) {
         break;
       }
     }
@@ -319,7 +316,7 @@ function getEndOfCodeInLine(anchor: LexicalNode): {
         currentNodeOffset = offset + 1;
       }
     }
-    if ($isCodeLineNode(node)) {
+    if ($isLineBreakNode(node)) {
       break;
     }
   }
@@ -337,7 +334,7 @@ function getEndOfCodeInLine(anchor: LexicalNode): {
           break;
         }
       }
-      if ($isCodeLineNode(node)) {
+      if ($isLineBreakNode(node)) {
         break;
       }
     }
