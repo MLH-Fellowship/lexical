@@ -35,6 +35,7 @@ import 'prismjs/components/prism-swift';
 
 import {addClassNamesToElement} from '@lexical/utils';
 import {
+  $createLineBreakNode,
   $createParagraphNode,
   $getSelection,
   $isRangeSelection,
@@ -42,7 +43,6 @@ import {
 } from 'lexical';
 import {CodeHighlightNode, $createCodeHighlightNode} from './CodeHighlightNode';
 import {getFirstCodeHighlightNodeOfLine} from './HighlighterHelper';
-import {$createCodeLineNode} from './CodeLineNode';
 
 type SerializedCodeNode = Spread<
   {
@@ -73,7 +73,7 @@ function convertDivElement(domNode: Node): DOMConversionOutput {
     after: (childLexicalNodes) => {
       const domParent = domNode.parentNode;
       if (domParent != null && domNode !== domParent.lastChild) {
-        childLexicalNodes.push($createCodeLineNode());
+        childLexicalNodes.push($createLineBreakNode());
       }
       return childLexicalNodes;
     },
@@ -93,7 +93,7 @@ function convertTableCellElement(domNode: Node): DOMConversionOutput {
     after: (childLexicalNodes) => {
       if (cell.parentNode && cell.parentNode.nextSibling) {
         // Append newline between code lines
-        childLexicalNodes.push($createCodeLineNode());
+        childLexicalNodes.push($createLineBreakNode());
       }
       return childLexicalNodes;
     },
@@ -280,7 +280,7 @@ export class CodeNode extends ElementNode {
         const whitespace = firstNodeText.substring(0, leadingWhitespace);
         const indentedChild = $createCodeHighlightNode(whitespace);
         anchor.insertAfter(indentedChild);
-        selection.insertNodes([$createCodeLineNode()]);
+        selection.insertNodes([$createLineBreakNode()]);
         indentedChild.select();
         return indentedChild;
       }
