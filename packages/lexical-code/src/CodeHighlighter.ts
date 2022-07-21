@@ -139,7 +139,7 @@ function getHighlightNodes(
 function codeNodeTransform(
   node: CodeNode,
   editor: LexicalEditor,
-  threshold?: number,
+  threshold: number,
 ) {
   if (isHighlighting) {
     return;
@@ -205,7 +205,7 @@ let isHighlighting = false;
 function textNodeTransform(
   node: TextNode,
   editor: LexicalEditor,
-  threshold?: number,
+  threshold: number,
 ): void {
   // Since CodeNode has flat children structure we only need to check
   // if node's parent is a code node and run highlighting if so
@@ -288,7 +288,7 @@ function getDiffRange(
 
 export function registerCodeHighlighting(
   editor: LexicalEditor,
-  threshold?: number,
+  threshold: number,
 ): () => void {
   if (!editor.hasNodes([CodeNode, CodeHighlightNode])) {
     throw new Error(

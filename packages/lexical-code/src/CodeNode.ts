@@ -319,7 +319,9 @@ export class CodeNode extends ElementNode {
   }
 }
 
-export function $createCodeNode(language?: string): CodeNode {
+export function $createCodeNode(
+  language?: string | null | undefined,
+): CodeNode {
   return new CodeNode(language);
 }
 

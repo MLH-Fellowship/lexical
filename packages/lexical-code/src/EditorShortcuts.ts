@@ -379,6 +379,7 @@ function handleMoveTo(
 
   event.preventDefault();
   event.stopPropagation();
+  return true;
 }
 
 export function registerCodeIndent(editor: LexicalEditor): () => void {

@@ -33,7 +33,11 @@ type SerializedCodeHighlightNode = Spread<
 export class CodeHighlightNode extends TextNode {
   __highlightType: string | null | undefined;
 
-  constructor(text: string, highlightType?: string, key?: NodeKey) {
+  constructor(
+    text: string,
+    highlightType?: string | null | undefined,
+    key?: NodeKey,
+  ) {
     super(text, key);
     this.__highlightType = highlightType;
   }
@@ -121,8 +125,8 @@ export class CodeHighlightNode extends TextNode {
 
 function getHighlightThemeClass(
   theme: EditorThemeClasses,
-  highlightType: string | undefined,
-): string | undefined {
+  highlightType: string | null | undefined,
+): string | null | undefined {
   return (
     highlightType &&
     theme &&
@@ -133,7 +137,7 @@ function getHighlightThemeClass(
 
 export function $createCodeHighlightNode(
   text: string,
-  highlightType?: string,
+  highlightType?: string | null | undefined,
 ): CodeHighlightNode {
   return new CodeHighlightNode(text, highlightType);
 }
