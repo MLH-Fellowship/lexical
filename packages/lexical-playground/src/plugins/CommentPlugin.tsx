@@ -158,11 +158,14 @@ function PlainTextEditor({
   onEscape,
   onChange,
   editorRef,
+  inputRef,
   placeholder = 'Type a comment...',
 }: {
   autoFocus?: boolean;
   className?: string;
   editorRef?: {current: null | LexicalEditor};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  inputRef?: {current: any};
   onChange: (editorState: EditorState, editor: LexicalEditor) => void;
   onEscape: (e: KeyboardEvent) => boolean;
   placeholder?: string;
@@ -178,7 +181,9 @@ function PlainTextEditor({
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div className="CommentPlugin_CommentInputBox_EditorContainer">
+      <div
+        className="CommentPlugin_CommentInputBox_EditorContainer"
+        ref={inputRef}>
         <PlainTextPlugin
           contentEditable={<ContentEditable className={className} />}
           placeholder={<Placeholder>{placeholder}</Placeholder>}
@@ -311,7 +316,7 @@ function CommentInputBox({
     return true;
   };
 
-  const submitComment = () => {
+  const submitComment = useCallback(() => {
     if (canSubmit) {
       let quote = editor.getEditorState().read(() => {
         const selection = $getSelection();
@@ -325,7 +330,27 @@ function CommentInputBox({
         true,
       );
     }
-  };
+  }, [author, canSubmit, content, editor, submitAddComment]);
+
+  // Submit comments and replies with CMD + Enter
+  useEffect(() => {
+    const inputBox = boxRef.current;
+    const listener = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && event.metaKey) {
+        submitComment();
+      }
+    };
+
+    if (inputBox) {
+      inputBox.addEventListener('keydown', listener);
+    }
+
+    return () => {
+      if (inputBox) {
+        inputBox.removeEventListener('keydown', listener);
+      }
+    };
+  }, [submitComment]);
 
   const onChange = useOnChange(setContent, setCanSubmit);
 
@@ -370,11 +395,12 @@ function CommentsComposer({
   const [content, setContent] = useState('');
   const [canSubmit, setCanSubmit] = useState(false);
   const editorRef = useRef<LexicalEditor>(null);
+  const inputRef = useRef<HTMLDivElement>(null);
   const author = useCollabAuthorName();
 
   const onChange = useOnChange(setContent, setCanSubmit);
 
-  const submitComment = () => {
+  const submitComment = useCallback(() => {
     if (canSubmit) {
       submitAddComment(createComment(content, author), false, thread);
       const editor = editorRef.current;
@@ -382,7 +408,27 @@ function CommentsComposer({
         editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
       }
     }
-  };
+  }, [author, canSubmit, content, submitAddComment, thread]);
+
+  // Submit comments and replies with CMD + Enter
+  useEffect(() => {
+    const editor = inputRef.current;
+    const listener = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && event.metaKey) {
+        submitComment();
+      }
+    };
+
+    if (editor) {
+      editor.addEventListener('keydown', listener);
+    }
+
+    return () => {
+      if (editor) {
+        editor.removeEventListener('keydown', listener);
+      }
+    };
+  }, [submitComment]);
 
   return (
     <>
@@ -394,6 +440,7 @@ function CommentsComposer({
         }}
         onChange={onChange}
         editorRef={editorRef}
+        inputRef={inputRef}
         placeholder={placeholder}
       />
       <Button

@@ -68,6 +68,7 @@ export type EditorFocusOptions = {
 export type EditorThemeClasses = {
   characterLimit?: EditorThemeClassName;
   code?: EditorThemeClassName;
+  codeLine?: EditorThemeClassName;
   codeHighlight?: Record<string, EditorThemeClassName>;
   hashtag?: EditorThemeClassName;
   heading?: {
